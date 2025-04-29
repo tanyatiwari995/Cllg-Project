@@ -21,7 +21,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 
 dotenv.config();
-
+let PORT = 5000;
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000,
@@ -86,7 +86,7 @@ async function startServer() {
     });
 
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
+      console.log(`Server running on port ${PORT} in mode`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
