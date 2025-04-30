@@ -8,7 +8,7 @@
       "dev": "nodemon src/app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Tanya Tiwari",
   "license": "ISC",
   "description": "",
   "dependencies": {
