@@ -33,32 +33,35 @@ A Node.js-based backend application built with Express, MongoDB (via Mongoose), 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/backend.git
-cd backend
-2. Install dependencies
+
+1. Install dependencies
 
 npm install
-3. Setup environment variables
+2. Setup environment variables
 Create a .env file in the root and add:
 PORT=5000
-db_connect=mongodb+srv://<username>:<password>@cluster.mongodb.net/<dbname>
+MONGO_URI="mongodb://localhost:27017/db_name"
 JWT_SECRET=your_jwt_secret
 TWILIO_ACCOUNT_SID=your_twilio_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-4. Run the app
+3. Run the app
 Development:
 npm run dev
 Production:
 
 npm start
+
 🛠 Scripts
 
 Command	Description
-npm start	Start the app using server.js
-npm run dev	Start in dev mode via nodemon
+
+npm start	
+
+npm run dev	
+
 📚 Dependencies
 This project uses the following major packages:
 

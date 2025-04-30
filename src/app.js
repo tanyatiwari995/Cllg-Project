@@ -21,7 +21,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 
 dotenv.config();
-let PORT = process.env.PORT||5000;
+let PORT = process.env.PORT || 5000;
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000,
@@ -40,7 +40,9 @@ async function startServer() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
-    app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
+    app.use(
+      fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true })
+    );
 
     // Ensure uploads directory exists
     const __filename = fileURLToPath(import.meta.url);
@@ -64,11 +66,19 @@ async function startServer() {
     cron.schedule("0 0 * * *", async () => {
       try {
         const now = new Date();
-        console.log(`[CRON] Running booking auto-completion job at ${now.toISOString()}`);
+        console.log(
+          `[CRON] Running booking auto-completion job at ${now.toISOString()}`
+        );
 
         const result = await Booking.updateMany(
           { status: "confirmed", event_date: { $lt: now } },
-          { $set: { status: "completed", completed_at: now, reviewAllowed: true } }
+          {
+            $set: {
+              status: "completed",
+              completed_at: now,
+              reviewAllowed: true,
+            },
+          }
         );
 
         console.log(`[CRON] Auto-completed ${result.modifiedCount} bookings`);
