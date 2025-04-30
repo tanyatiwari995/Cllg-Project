@@ -40,8 +40,6 @@ cd backend
 npm install
 3. Setup environment variables
 Create a .env file in the root and add:
-
-
 PORT=5000
 db_connect=mongodb+srv://<username>:<password>@cluster.mongodb.net/<dbname>
 JWT_SECRET=your_jwt_secret
@@ -64,11 +62,22 @@ npm run dev	Start in dev mode via nodemon
 📚 Dependencies
 This project uses the following major packages:
 
-express, mongoose, jsonwebtoken, bcrypt, cloudinary, multer, twilio
-
-helmet, cors, dotenv, express-validator, express-session, cookie-parser
-
-node-cron, morgan, express-rate-limit
+express, 
+mongoose, 
+jsonwebtoken, 
+bcrypt, 
+cloudinary, 
+multer, 
+twilio
+helmet, 
+cors, 
+dotenv, 
+express-validator, 
+express-session, 
+cookie-parser
+node-cron, 
+morgan, 
+express-rate-limit
 
 👩‍💻 Author
 Tanya Tiwari

@@ -21,7 +21,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 
 dotenv.config();
-let PORT = 5000;
+let PORT = process.env.PORT||5000;
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000,
