@@ -1,7 +1,5 @@
-This project provides a secure admin authentication system and vendor request approval workflow for an Express.js application. It includes features like username/phone login, OTP-based password reset, and functionality for approving or rejecting vendor requests. The system also offers vendor registration, user review management, and more.
 
-
-Features
+`Features:`  
 Admin Login: Admins can log in using their username or phone number.
 
 OTP-based Authentication: OTP generation and verification via Twilio for login and password resets.
@@ -28,36 +26,24 @@ Notifications: Sends WhatsApp or SMS notifications via Twilio upon moderation ac
 
 Soft Deletes: Admins can soft delete reviews and block/unblock users.
 
+
+
 Create a .env file with the following keys:
 
-NODE_ENV=development
+`NODE_ENV=development
 JWT_SECRET=your_jwt_secret
 TWILIO_ACCOUNT_SID=your_twilio_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=your_twilio_phone
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-key
-CLOUDINARY_API_SECRET=your-secret
+CLOUDINARY_API_SECRET=your-secret`
 
+Tech Stack:
 
-
-Create a .env file with the following keys:
-
-NODE_ENV=development
-JWT_SECRET=your_jwt_secret
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=your_twilio_phone
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-key
-CLOUDINARY_API_SECRET=your-secret
-
-Tech Stack
-Backend: Node.js, Express.js
-
+`Backend: Node.js, Express.js
 Database: MongoDB 
-
-Authentication: JWT, bcrypt, OTP
+Authentication: JWT, bcrypt, OTP`
 
 
 
@@ -102,4 +88,4 @@ Error Handling
 404 Not Found: If the requested resource (admin, user, vendor) does not exist.
 
 License
-MIT License
+`MIT License`
