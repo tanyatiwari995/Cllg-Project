@@ -159,10 +159,10 @@ async function startServer() {
     const __dirname = path.dirname(__filename);
     const uploadsDir = path.join(__dirname, "uploads");
 
-    // if (!fs.existsSync(uploadsDir)) {
-    //   fs.mkdirSync(uploadsDir, { recursive: true });
-    //   console.log("Created uploads directory:", uploadsDir);
-    // }
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+      console.log("Created uploads directory:", uploadsDir);
+    }
 
     app.use("/users", userRoutes);
     app.use("/admins", adminRoutes);
@@ -205,15 +205,13 @@ async function startServer() {
       });
     });
 
-    //app.listen(PORT, () => {
-    //  console.log(`Server running on port ${PORT} in mode`);
-    //});
-    return app;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT} in mode`);
+    });
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
   }
 }
 
-const app = startServer();
-export default app;
+startServer();

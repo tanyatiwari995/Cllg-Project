@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Phone number is required"],
       unique: true,
-      match: [/^\+91[0-4][0-9]{8}$/, "Phone must be a valid Indian number starting with +91"],
+      match: [/^\+91[1-9][0-9]{9}$/, "Phone must be a valid Indian number starting with +91"], // Valid Indian number starting with +91
     },
     username: {
       type: String,
@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate: {
         validator: function (v) {
-          return v === `user${this.phone.replace("+", "")}` // Username must be 'user' + phone without '+'
+          return v === `user${this.phone.replace("+", "")}`; // Username must be 'user' + phone without '+'
         },
         message: 'Username must be "user" followed by the full phone number without the + prefix',
       },
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       required: [
         function () {
-          return this.role === "vendor"
+          return this.role === "vendor";
         },
         "Password is required for vendors",
       ],
@@ -46,8 +46,8 @@ const userSchema = new mongoose.Schema(
         default: "canApply",
       },
       submittedAt: { type: Date },
-      phone_whatsapp: { type: String, match: [/^\+91[0-4][0-9]{8}$/, "Valid Indian number"] },
-      whatsapp_number: { type: String, match: [/^\+91[0-4][0-9]{8}$/, "Valid Indian number"] },
+      phone_whatsapp: { type: String, match: [/^\+91[1-9][0-9]{9}$/, "Valid Indian number"] }, // Indian number with +91
+      whatsapp_number: { type: String, match: [/^\+91[1-9][0-9]{9}$/, "Valid Indian number"] }, // Indian number with +91
       category: {
         type: String,
         enum: [
@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema(
           "Bridal Wear",
           "Car Rental",
           "Wedding Cards",
-          "Wedding Invitations"
+          "Wedding Invitations",
         ],
       },
       brand_icon: { type: String },
@@ -76,8 +76,8 @@ const userSchema = new mongoose.Schema(
       lastRejectionTime: { type: Date }, // For cooldown after multiple rejections
     },
     vendorDetails: {
-      phone_whatsapp: { type: String, match: [/^\+91[0-4][0-9]{8}$/, "Valid Indian number"] },
-      whatsapp_number: { type: String, match: [/^\+91[0-4][0-9]{8}$/, "Valid Indian number"] },
+      phone_whatsapp: { type: String, match: [/^\+91[1-9][0-9]{9}$/, "Valid Indian number"] }, // Indian number with +91
+      whatsapp_number: { type: String, match: [/^\+91[1-9][0-9]{9}$/, "Valid Indian number"] }, // Indian number with +91
       category: {
         type: String,
         enum: [
@@ -88,7 +88,7 @@ const userSchema = new mongoose.Schema(
           "Bridal Wear",
           "Car Rental",
           "Wedding Cards",
-          "Wedding Invitations"
+          "Wedding Invitations",
         ],
       },
       brand_icon: { type: String },
@@ -103,7 +103,7 @@ const userSchema = new mongoose.Schema(
       map_link: { type: String },
     },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-export default mongoose.model("User", userSchema)
+export default mongoose.model("User", userSchema);

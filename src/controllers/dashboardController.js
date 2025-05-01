@@ -13,23 +13,34 @@ import { generateWhatsAppLink } from "../utils/whatsapp.js"; // Import utility
 export const getAdminDashboardStats = async (req, res) => {
   try {
     const totalServices = await Service.countDocuments();
-    const publishedServices = await Service.countDocuments({ status: "published" });
+    const publishedServices = await Service.countDocuments({
+      status: "published",
+    });
     const pendingServices = await Service.countDocuments({ status: "pending" });
 
     const totalCards = await CardTemplate.countDocuments();
-    const publishedCards = await CardTemplate.countDocuments({ status: "published" });
-    const pendingCards = await CardTemplate.countDocuments({ status: "pending" });
+    const publishedCards = await CardTemplate.countDocuments({
+      status: "published",
+    });
+    const pendingCards = await CardTemplate.countDocuments({
+      status: "pending",
+    });
 
     const totalBookings = await Booking.countDocuments();
-    const confirmedBookings = await Booking.countDocuments({ status: "confirmed" });
+    const confirmedBookings = await Booking.countDocuments({
+      status: "confirmed",
+    });
 
     const totalUsers = await User.countDocuments({ role: "user" });
     const totalVendors = await User.countDocuments({ role: "vendor" });
 
-    const pendingVendorRequests = await User.countDocuments({ "vendorRequest.status": "pending" });
+    const pendingVendorRequests = await User.countDocuments({
+      "vendorRequest.status": "pending",
+    });
     const totalEstimations = await Estimation.countDocuments();
 
-    const pendingActions = pendingServices + pendingCards + pendingVendorRequests;
+    const pendingActions =
+      pendingServices + pendingCards + pendingVendorRequests;
 
     res.status(200).json({
       totalServices,
@@ -70,7 +81,9 @@ export const getAdminServices = async (req, res) => {
       service_id: service._id,
       name: service.name,
       vendor_id: service.vendor_id._id,
-      vendor_name: service.vendor_id.vendorDetails?.brand_name || service.vendor_id.full_name,
+      vendor_name:
+        service.vendor_id.vendorDetails?.brand_name ||
+        service.vendor_id.full_name,
       price_range: service.price_range,
       status: service.status,
       category: service.category,
@@ -107,13 +120,15 @@ export const getAdminCards = async (req, res) => {
       card_id: card._id,
       name: card.name || `${card.type} Card Template`, // Use name field
       vendor_id: card.vendor_id._id,
-      vendor_name: card.vendor_id.vendorDetails?.brand_name || card.vendor_id.full_name,
+      vendor_name:
+        card.vendor_id.vendorDetails?.brand_name || card.vendor_id.full_name,
       price: card.price_per_card,
       status: card.status,
       created_at: card.createdAt,
     }));
 
     const totalPages = Math.ceil(totalCards / limit);
+    console.log(totalPages);
 
     res.status(200).json({
       data: formattedCards,
@@ -145,11 +160,16 @@ export const getAdminBookings = async (req, res) => {
     const formattedBookings = bookings.map((booking) => ({
       booking_id: booking._id,
       service_id: booking.service_id?._id || booking.card_template_id?._id,
-      name: booking.service_id?.name || booking.card_template_id?.name || `${booking.card_template_id?.type} Card`, // Use name field
+      name:
+        booking.service_id?.name ||
+        booking.card_template_id?.name ||
+        `${booking.card_template_id?.type} Card`,
       user_id: booking.user_id._id,
       user_name: booking.user_id.full_name,
       vendor_id: booking.vendor_id._id,
-      vendor_name: booking.vendor_id.vendorDetails?.brand_name || booking.vendor_id.full_name,
+      vendor_name:
+        booking.vendor_id.vendorDetails?.brand_name ||
+        booking.vendor_id.full_name,
       date: booking.date_time,
       status: booking.status,
       price: booking.price,
@@ -194,6 +214,7 @@ export const getAdminReviews = async (req, res) => {
     }));
 
     const totalPages = Math.ceil(totalReviews / limit);
+    console.log(totalPages);
 
     res.status(200).json({
       data: formattedReviews,
@@ -219,14 +240,18 @@ export const getAdminUsers = async (req, res) => {
       .limit(limit);
 
     const blockedUsers = await BlockedUsers.find();
+    console.log(blockedUsers);
     const blockedUserIds = blockedUsers.map((user) => user.userId?.toString());
+    console.log(blockedUserIds);
 
     const formattedUsers = users.map((user) => ({
       user_id: user._id,
       name: user.full_name,
       phone: user.phone,
       role: user.role,
-      status: blockedUserIds.includes(user._id.toString()) ? "Blocked" : "Active",
+      status: blockedUserIds.includes(user._id.toString())
+        ? "Blocked"
+        : "Active",
       created_at: user.createdAt,
     }));
 
@@ -249,8 +274,12 @@ export const getAdminVendorRequests = async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
-    const totalVendorRequests = await User.countDocuments({ "vendorRequest.status": "pending" });
-    const vendorRequests = await User.find({ "vendorRequest.status": "pending" })
+    const totalVendorRequests = await User.countDocuments({
+      "vendorRequest.status": "pending",
+    });
+    const vendorRequests = await User.find({
+      "vendorRequest.status": "pending",
+    })
       .sort({ "vendorRequest.submittedAt": -1 })
       .skip(skip)
       .limit(limit);
@@ -280,6 +309,7 @@ export const getAdminVendorRequests = async (req, res) => {
 // Approve Service
 export const approveService = async (req, res) => {
   const { serviceId } = req.params;
+  console.log(req.params);
 
   try {
     const service = await Service.findById(serviceId);
@@ -290,7 +320,10 @@ export const approveService = async (req, res) => {
 
     const vendor = await User.findById(service.vendor_id);
     if (vendor) {
-      await sendOTP(vendor.phone, `Your service "${service.name}" has been approved and is now published.`);
+      await sendOTP(
+        vendor.phone,
+        `Your service "${service.name}" has been approved and is now published.`
+      );
     }
 
     res.status(200).json({ message: "Service approved successfully" });
@@ -303,7 +336,7 @@ export const approveService = async (req, res) => {
 // Reject Service
 export const rejectService = async (req, res) => {
   const { serviceId } = req.params;
-
+  console.log(req.params);
   try {
     const service = await Service.findById(serviceId);
     if (!service) return res.status(404).json({ message: "Service not found" });
@@ -329,17 +362,22 @@ export const rejectService = async (req, res) => {
 // Approve Card
 export const approveCard = async (req, res) => {
   const { cardId } = req.params;
+  console.log(req.params);
 
   try {
     const card = await CardTemplate.findById(cardId);
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     card.status = "published";
     await card.save();
 
     const vendor = await User.findById(card.vendor_id);
     if (vendor) {
-      await sendOTP(vendor.phone, `Your wedding card template has been approved and is now published.`);
+      await sendOTP(
+        vendor.phone,
+        `Your wedding card template has been approved and is now published.`
+      );
     }
 
     res.status(200).json({ message: "Card template approved successfully" });
@@ -352,10 +390,12 @@ export const approveCard = async (req, res) => {
 // Reject Card
 export const rejectCard = async (req, res) => {
   const { cardId } = req.params;
+  console.log(req.params);
 
   try {
     const card = await CardTemplate.findById(cardId);
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     const vendorId = card.vendor_id;
     await CardTemplate.findByIdAndDelete(cardId);
@@ -378,6 +418,7 @@ export const rejectCard = async (req, res) => {
 // Cancel Booking (Admin)
 export const cancelBooking = async (req, res) => {
   const { bookingId } = req.params;
+  console.log(req.params);
 
   try {
     const session = await mongoose.startSession();
@@ -393,12 +434,17 @@ export const cancelBooking = async (req, res) => {
 
       // Restore resources
       if (booking.service_id) {
-        const service = await Service.findById(booking.service_id).session(session);
+        const service = await Service.findById(booking.service_id).session(
+          session
+        );
         if (service) {
           if (service.booking_type === "quantity-based") {
             service.quantity_available += booking.quantity || 1;
             await service.save({ session });
-          } else if (service.booking_type === "event-based" && booking.date_time) {
+          } else if (
+            service.booking_type === "event-based" &&
+            booking.date_time
+          ) {
             const slot = service.availability_slots.find(
               (s) =>
                 new Date(s.date).toISOString().split("T")[0] ===
@@ -413,7 +459,9 @@ export const cancelBooking = async (req, res) => {
           }
         }
       } else if (booking.card_template_id) {
-        const card = await CardTemplate.findById(booking.card_template_id).session(session);
+        const card = await CardTemplate.findById(
+          booking.card_template_id
+        ).session(session);
         if (card) {
           card.quantity_available += booking.quantity || 1;
           await card.save({ session });
@@ -426,8 +474,16 @@ export const cancelBooking = async (req, res) => {
       const user = await User.findById(booking.user_id);
       const vendor = await User.findById(booking.vendor_id);
 
-      if (user) await sendOTP(user.phone, `Your booking has been canceled by the admin.`);
-      if (vendor) await sendOTP(vendor.phone, `A booking has been canceled by the admin.`);
+      if (user)
+        await sendOTP(
+          user.phone,
+          `Your booking has been canceled by the admin.`
+        );
+      if (vendor)
+        await sendOTP(
+          vendor.phone,
+          `A booking has been canceled by the admin.`
+        );
 
       await session.commitTransaction();
       session.endSession();
@@ -446,7 +502,7 @@ export const cancelBooking = async (req, res) => {
 // Delete Review
 export const deleteReview = async (req, res) => {
   const { reviewId } = req.params;
-
+  console.log(req.params);
   try {
     const review = await Review.findById(reviewId);
     if (!review) return res.status(404).json({ message: "Review not found" });
@@ -464,6 +520,7 @@ export const deleteReview = async (req, res) => {
 // Toggle User Block
 export const toggleUserBlock = async (req, res) => {
   const { userId } = req.params;
+  console.log(req.params);
 
   try {
     const user = await User.findById(userId);
@@ -475,7 +532,11 @@ export const toggleUserBlock = async (req, res) => {
       await BlockedUsers.findByIdAndDelete(blockedUser._id);
       res.status(200).json({ message: "User unblocked successfully" });
     } else {
-      await BlockedUsers.create({ userId, phone: user.phone, reason: "Blocked by admin" });
+      await BlockedUsers.create({
+        userId,
+        phone: user.phone,
+        reason: "Blocked by admin",
+      });
       res.status(200).json({ message: "User blocked successfully" });
     }
   } catch (error) {
@@ -487,7 +548,7 @@ export const toggleUserBlock = async (req, res) => {
 // User Dashboard Stats
 export const getUserDashboardStats = async (req, res) => {
   const userId = req.user.id;
-
+  console.log(req.user.id);
   try {
     const estimations = await Estimation.find({ userId }).countDocuments();
     const totalEstimationCost = await Estimation.aggregate([
@@ -496,17 +557,29 @@ export const getUserDashboardStats = async (req, res) => {
     ]);
 
     const bookings = await Booking.find({ user_id: userId });
-    const pendingBookings = bookings.filter((b) => b.status === "pending").length;
-    const confirmedBookings = bookings.filter((b) => b.status === "confirmed").length;
-    const completedBookings = bookings.filter((b) => b.status === "completed" && b.completed_at).length;
+    const pendingBookings = bookings.filter(
+      (b) => b.status === "pending"
+    ).length;
+    const confirmedBookings = bookings.filter(
+      (b) => b.status === "confirmed"
+    ).length;
+    const completedBookings = bookings.filter(
+      (b) => b.status === "completed" && b.completed_at
+    ).length;
 
     const now = new Date();
     const upcomingEvents = bookings.filter(
-      (b) => b.status === "confirmed" && b.event_date && new Date(b.event_date) > now
+      (b) =>
+        b.status === "confirmed" && b.event_date && new Date(b.event_date) > now
     ).length;
 
     const reviews = await Review.find({ user_id: userId });
-    const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.stars, 0) / reviews.length).toFixed(1) : 0;
+    const avgRating =
+      reviews.length > 0
+        ? (
+            reviews.reduce((sum, r) => sum + r.stars, 0) / reviews.length
+          ).toFixed(1)
+        : 0;
 
     res.status(200).json({
       estimations,
@@ -567,7 +640,9 @@ export const getUserEstimations = async (req, res) => {
       }),
       cards: est.cards.map((card) => ({
         card_id: card.cardId?._id,
-        name: card.cardId ? `${card.cardId.type} Card Template` : "Unknown Card",
+        name: card.cardId
+          ? `${card.cardId.type} Card Template`
+          : "Unknown Card",
         price_per_card: card.cardId?.price_per_card || 0,
         quantity: card.quantity,
       })),
@@ -613,7 +688,9 @@ export const getUserBookings = async (req, res) => {
       status: booking.status,
       date: booking.date_time,
       vendor_id: booking.vendor_id._id,
-      vendor_phone: booking.vendor_id.vendorDetails?.whatsapp_number || booking.vendor_id.phone,
+      vendor_phone:
+        booking.vendor_id.vendorDetails?.whatsapp_number ||
+        booking.vendor_id.phone,
       price: booking.price,
       completed_at: booking.completed_at,
     }));
@@ -633,14 +710,21 @@ export const getUserBookings = async (req, res) => {
 // User Reviews List
 export const getUserReviews = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id);
 
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
-    const totalCompletedBookings = await Booking.countDocuments({ user_id: userId, status: "completed" });
-    const completedBookings = await Booking.find({ user_id: userId, status: "completed" })
+    const totalCompletedBookings = await Booking.countDocuments({
+      user_id: userId,
+      status: "completed",
+    });
+    const completedBookings = await Booking.find({
+      user_id: userId,
+      status: "completed",
+    })
       .populate("service_id", "name")
       .populate("card_template_id")
       .sort({ completed_at: -1 })
@@ -648,10 +732,15 @@ export const getUserReviews = async (req, res) => {
       .limit(limit);
 
     const bookingIds = completedBookings.map((booking) => booking._id);
-    const reviews = await Review.find({ user_id: userId, booking_id: { $in: bookingIds } });
+    const reviews = await Review.find({
+      user_id: userId,
+      booking_id: { $in: bookingIds },
+    });
 
     const formattedData = completedBookings.map((booking) => {
-      const review = reviews.find((r) => r.booking_id.toString() === booking._id.toString());
+      const review = reviews.find(
+        (r) => r.booking_id.toString() === booking._id.toString()
+      );
       const serviceName = booking.service_id?.name || "Wedding Card";
       return {
         booking_id: booking._id,
@@ -661,12 +750,18 @@ export const getUserReviews = async (req, res) => {
         completed_at: booking.completed_at,
         event_date: booking.event_date,
         review: review
-          ? { review_id: review._id, rating: review.stars, comment: review.comment, created_at: review.createdAt }
+          ? {
+              review_id: review._id,
+              rating: review.stars,
+              comment: review.comment,
+              created_at: review.createdAt,
+            }
           : null,
       };
     });
 
     const totalPages = Math.ceil(totalCompletedBookings / limit);
+    console.log(totalPages);
 
     res.status(200).json({
       data: formattedData,
@@ -682,24 +777,37 @@ export const getUserReviews = async (req, res) => {
 export const submitReview = async (req, res) => {
   const userId = req.user.id;
   const { bookingId, rating, comment } = req.body;
+ console.log(req.body);
+
 
   try {
     if (!bookingId || !rating) {
-      return res.status(400).json({ message: "Booking ID and rating are required" });
+      return res
+        .status(400)
+        .json({ message: "Booking ID and rating are required" });
     }
 
     const booking = await Booking.findOne({ _id: bookingId, user_id: userId });
     if (!booking) {
-      return res.status(404).json({ message: "Booking not found or not authorized" });
+      return res
+        .status(404)
+        .json({ message: "Booking not found or not authorized" });
     }
 
     if (booking.status !== "completed" || !booking.reviewAllowed) {
-      return res.status(400).json({ message: "You can only review completed bookings with review allowed" });
+      return res.status(400).json({
+        message: "You can only review completed bookings with review allowed",
+      });
     }
 
-    const existingReview = await Review.findOne({ booking_id: bookingId, user_id: userId });
+    const existingReview = await Review.findOne({
+      booking_id: bookingId,
+      user_id: userId,
+    });
     if (existingReview) {
-      return res.status(400).json({ message: "You have already reviewed this booking" });
+      return res
+        .status(400)
+        .json({ message: "You have already reviewed this booking" });
     }
 
     const serviceId = booking.service_id;
@@ -718,16 +826,28 @@ export const submitReview = async (req, res) => {
 
     // Update avg_rating and review_count
     if (serviceId) {
-      const serviceReviews = await Review.find({ service_id: serviceId, isActive: true });
-      const totalStars = serviceReviews.reduce((sum, review) => sum + review.stars, 0);
+      const serviceReviews = await Review.find({
+        service_id: serviceId,
+        isActive: true,
+      });
+      const totalStars = serviceReviews.reduce(
+        (sum, review) => sum + review.stars,
+        0
+      );
       const avgRating = totalStars / serviceReviews.length;
       await Service.findByIdAndUpdate(serviceId, {
         avg_rating: avgRating,
         review_count: serviceReviews.length,
       });
     } else if (cardId) {
-      const cardReviews = await Review.find({ card_template_id: cardId, isActive: true });
-      const totalStars = cardReviews.reduce((sum, review) => sum + review.stars, 0);
+      const cardReviews = await Review.find({
+        card_template_id: cardId,
+        isActive: true,
+      });
+      const totalStars = cardReviews.reduce(
+        (sum, review) => sum + review.stars,
+        0
+      );
       const avgRating = totalStars / cardReviews.length;
       await CardTemplate.findByIdAndUpdate(cardId, {
         avg_rating: avgRating,
@@ -760,21 +880,32 @@ export const cancelUserBooking = async (req, res) => {
     session.startTransaction();
 
     try {
-      const booking = await Booking.findOne({ _id: bookingId, user_id: userId, status: "pending" }).session(session);
+      const booking = await Booking.findOne({
+        _id: bookingId,
+        user_id: userId,
+        status: "pending",
+      }).session(session);
       if (!booking) {
         await session.abortTransaction();
         session.endSession();
-        return res.status(404).json({ message: "Pending booking not found or not authorized" });
+        return res
+          .status(404)
+          .json({ message: "Pending booking not found or not authorized" });
       }
 
       // Restore resources
       if (booking.service_id) {
-        const service = await Service.findById(booking.service_id).session(session);
+        const service = await Service.findById(booking.service_id).session(
+          session
+        );
         if (service) {
           if (service.booking_type === "quantity-based") {
             service.quantity_available += booking.quantity || 1;
             await service.save({ session });
-          } else if (service.booking_type === "event-based" && booking.date_time) {
+          } else if (
+            service.booking_type === "event-based" &&
+            booking.date_time
+          ) {
             const slot = service.availability_slots.find(
               (s) =>
                 new Date(s.date).toISOString().split("T")[0] ===
@@ -789,7 +920,9 @@ export const cancelUserBooking = async (req, res) => {
           }
         }
       } else if (booking.card_template_id) {
-        const card = await CardTemplate.findById(booking.card_template_id).session(session);
+        const card = await CardTemplate.findById(
+          booking.card_template_id
+        ).session(session);
         if (card) {
           card.quantity_available += booking.quantity || 1;
           await card.save({ session });
@@ -832,7 +965,9 @@ export const getServiceById = async (req, res) => {
       service_id: service._id,
       name: service.name,
       category: service.category,
-      vendor_name: service.vendor_id.vendorDetails?.brand_name || service.vendor_id.full_name,
+      vendor_name:
+        service.vendor_id.vendorDetails?.brand_name ||
+        service.vendor_id.full_name,
       vendor_id: service.vendor_id._id,
       price_range: service.price_range,
       description: service.description,
@@ -844,7 +979,10 @@ export const getServiceById = async (req, res) => {
       location_map: service.location_map || "",
       discount: service.discount || 0,
       discount_expiry: service.discount_expiry || null,
-      availability: service.availability || { working_hours: "", working_days: [] },
+      availability: service.availability || {
+        working_hours: "",
+        working_days: [],
+      },
       pricing_packages: service.pricing_packages || [],
       details: service.details || {},
     };
@@ -864,12 +1002,14 @@ export const getCardById = async (req, res) => {
       .populate("vendor_id", "username full_name vendorDetails.brand_name")
       .lean();
 
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     const cardData = {
       card_id: card._id,
       name: card.name || `${card.type} Card Template`, // Use name field
-      vendor_name: card.vendor_id.vendorDetails?.brand_name || card.vendor_id.full_name,
+      vendor_name:
+        card.vendor_id.vendorDetails?.brand_name || card.vendor_id.full_name,
       vendor_id: card.vendor_id._id,
       price_per_card: card.price_per_card,
       quantity_available: card.quantity_available,
@@ -895,9 +1035,12 @@ export const getCardById = async (req, res) => {
 export const getVendorRequestById = async (req, res) => {
   try {
     const { vendorId } = req.params;
-    const user = await User.findById(vendorId).select("username full_name phone vendorRequest").lean();
+    const user = await User.findById(vendorId)
+      .select("username full_name phone vendorRequest")
+      .lean();
 
-    if (!user || !user.vendorRequest) return res.status(404).json({ message: "Vendor request not found" });
+    if (!user || !user.vendorRequest)
+      return res.status(404).json({ message: "Vendor request not found" });
 
     const vendorData = {
       vendor_id: user._id,
@@ -917,7 +1060,10 @@ export const getVendorRequestById = async (req, res) => {
       instagram_link: user.vendorRequest.instagram_link || "N/A",
       facebook_link: user.vendorRequest.facebook_link || "N/A",
       booking_email: user.vendorRequest.booking_email || "N/A",
-      phone_whatsapp: user.vendorRequest.phone_whatsapp || user.vendorRequest.whatsapp_number || "N/A",
+      phone_whatsapp:
+        user.vendorRequest.phone_whatsapp ||
+        user.vendorRequest.whatsapp_number ||
+        "N/A",
       submittedAt: user.vendorRequest.submittedAt,
       status: user.vendorRequest.status || "pending",
     };
@@ -938,7 +1084,9 @@ export const revertServiceToPending = async (req, res) => {
     if (!service) return res.status(404).json({ message: "Service not found" });
 
     if (service.status !== "published") {
-      return res.status(400).json({ message: "Only published services can be reverted to pending" });
+      return res.status(400).json({
+        message: "Only published services can be reverted to pending",
+      });
     }
 
     service.status = "pending";
@@ -946,10 +1094,15 @@ export const revertServiceToPending = async (req, res) => {
 
     const vendor = await User.findById(service.vendor_id);
     if (vendor) {
-      await sendOTP(vendor.phone, `Your service "${service.name}" has been reverted to pending status for review.`);
+      await sendOTP(
+        vendor.phone,
+        `Your service "${service.name}" has been reverted to pending status for review.`
+      );
     }
 
-    res.status(200).json({ message: "Service successfully reverted to pending status" });
+    res
+      .status(200)
+      .json({ message: "Service successfully reverted to pending status" });
   } catch (error) {
     console.error("Revert service error:", error);
     res.status(500).json({ message: "Server error" });
@@ -962,10 +1115,13 @@ export const revertCardToPending = async (req, res) => {
 
   try {
     const card = await CardTemplate.findById(cardId);
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     if (card.status !== "published") {
-      return res.status(400).json({ message: "Only published cards can be reverted to pending" });
+      return res
+        .status(400)
+        .json({ message: "Only published cards can be reverted to pending" });
     }
 
     card.status = "pending";
@@ -973,16 +1129,20 @@ export const revertCardToPending = async (req, res) => {
 
     const vendor = await User.findById(card.vendor_id);
     if (vendor) {
-      await sendOTP(vendor.phone, `Your card template has been reverted to pending status for review.`);
+      await sendOTP(
+        vendor.phone,
+        `Your card template has been reverted to pending status for review.`
+      );
     }
 
-    res.status(200).json({ message: "Card successfully reverted to pending status" });
+    res
+      .status(200)
+      .json({ message: "Card successfully reverted to pending status" });
   } catch (error) {
     console.error("Revert card error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const createEstimation = async (req, res) => {
   // Create or update an estimation for services and/or cards
@@ -993,7 +1153,8 @@ export const createEstimation = async (req, res) => {
     // Validate input
     if (!services.length && !cards.length) {
       return res.status(400).json({
-        message: "At least one service or card is required to create an estimation",
+        message:
+          "At least one service or card is required to create an estimation",
       });
     }
 
@@ -1059,7 +1220,9 @@ export const createEstimation = async (req, res) => {
 
     // Return estimation details
     res.status(201).json({
-      message: estimation.isNew ? "Estimation created successfully" : "Estimation updated successfully",
+      message: estimation.isNew
+        ? "Estimation created successfully"
+        : "Estimation updated successfully",
       estimation: {
         estimation_id: estimation._id,
         services: estimation.services,
@@ -1077,8 +1240,6 @@ export const createEstimation = async (req, res) => {
     });
   }
 };
-
-
 
 // Remove an estimation or specific items
 export const removeEstimation = async (req, res) => {
@@ -1129,15 +1290,21 @@ export const removeEstimation = async (req, res) => {
       // Save updated estimation or delete if empty
       if (estimation.services.length === 0 && estimation.cards.length === 0) {
         await Estimation.findByIdAndDelete(estimationId);
-        return res.status(200).json({ message: "Estimation removed successfully" });
+        return res
+          .status(200)
+          .json({ message: "Estimation removed successfully" });
       } else {
         await estimation.save();
-        return res.status(200).json({ message: "Item removed from estimation successfully" });
+        return res
+          .status(200)
+          .json({ message: "Item removed from estimation successfully" });
       }
     } else {
       // Delete entire estimation if no specific item is targeted
       await Estimation.findByIdAndDelete(estimationId);
-      return res.status(200).json({ message: "Estimation removed successfully" });
+      return res
+        .status(200)
+        .json({ message: "Estimation removed successfully" });
     }
   } catch (error) {
     console.error("Remove estimation error:", error);
@@ -1145,18 +1312,28 @@ export const removeEstimation = async (req, res) => {
   }
 };
 
-
 export const createBooking = async (req, res) => {
   console.log("createBooking called with payload:", req.body);
   const userId = req.user.id;
-  const { service_id, package_id, card_template_id, date_time, quantity = 1, end_date } = req.body;
+  const {
+    service_id,
+    package_id,
+    card_template_id,
+    date_time,
+    quantity = 1,
+    end_date,
+  } = req.body;
 
   try {
     if (!service_id && !card_template_id) {
-      return res.status(400).json({ message: "Either service_id or card_template_id is required" });
+      return res
+        .status(400)
+        .json({ message: "Either service_id or card_template_id is required" });
     }
     if (service_id && card_template_id) {
-      return res.status(400).json({ message: "Cannot book both a service and a card template" });
+      return res
+        .status(400)
+        .json({ message: "Cannot book both a service and a card template" });
     }
     if (quantity < 1) {
       return res.status(400).json({ message: "Quantity must be at least 1" });
@@ -1174,19 +1351,29 @@ export const createBooking = async (req, res) => {
 
     try {
       if (service_id) {
-        const service = await Service.findById(service_id).populate("vendor_id").session(session);
-        if (!service) return res.status(404).json({ message: "Service not found" });
-        if (service.status !== "published") return res.status(403).json({ message: "Service is not published" });
-        if (!package_id) return res.status(400).json({ message: "Package ID is required for services" });
+        const service = await Service.findById(service_id)
+          .populate("vendor_id")
+          .session(session);
+        if (!service)
+          return res.status(404).json({ message: "Service not found" });
+        if (service.status !== "published")
+          return res.status(403).json({ message: "Service is not published" });
+        if (!package_id)
+          return res
+            .status(400)
+            .json({ message: "Package ID is required for services" });
 
         const selectedPackage = service.pricing_packages.find(
           (pkg) => pkg._id.toString() === package_id.toString()
         );
-        if (!selectedPackage) return res.status(400).json({ message: "Invalid package ID" });
+        if (!selectedPackage)
+          return res.status(400).json({ message: "Invalid package ID" });
 
         vendor_id = service.vendor_id._id;
         if (vendor_id.toString() === userId.toString()) {
-          return res.status(403).json({ message: "You cannot book your own service" });
+          return res
+            .status(403)
+            .json({ message: "You cannot book your own service" });
         }
 
         // Check for existing booking for the same service and time
@@ -1197,15 +1384,26 @@ export const createBooking = async (req, res) => {
           status: { $in: ["pending", "confirmed"] },
         });
         if (existingBooking) {
-          return res.status(400).json({ message: "You have already booked this service for the specified time" });
+          return res.status(400).json({
+            message:
+              "You have already booked this service for the specified time",
+          });
         }
 
-        price = selectedPackage.price * (service.category === "Wedding Venues" ? quantity : 1);
-        if (service.discount > 0 && (!service.discount_expiry || new Date(service.discount_expiry) > new Date())) {
+        price =
+          selectedPackage.price *
+          (service.category === "Wedding Venues" ? quantity : 1);
+        if (
+          service.discount > 0 &&
+          (!service.discount_expiry ||
+            new Date(service.discount_expiry) > new Date())
+        ) {
           price = price * (1 - service.discount / 100);
         }
 
-        const isRental = ["Bridal Wear", "Car Rental"].includes(service.category);
+        const isRental = ["Bridal Wear", "Car Rental"].includes(
+          service.category
+        );
 
         booking = new Booking({
           user_id: userId,
@@ -1219,11 +1417,19 @@ export const createBooking = async (req, res) => {
           quantity: service.category === "Wedding Venues" ? quantity : 1,
         });
       } else if (card_template_id) {
-        const card = await CardTemplate.findById(card_template_id).populate("vendor_id").session(session);
-        if (!card) return res.status(404).json({ message: "Card template not found" });
-        if (card.status !== "published") return res.status(403).json({ message: "Card template is not published" });
+        const card = await CardTemplate.findById(card_template_id)
+          .populate("vendor_id")
+          .session(session);
+        if (!card)
+          return res.status(404).json({ message: "Card template not found" });
+        if (card.status !== "published")
+          return res
+            .status(403)
+            .json({ message: "Card template is not published" });
         if (card.quantity_available === 0) {
-          return res.status(400).json({ message: "No cards available for booking" });
+          return res
+            .status(400)
+            .json({ message: "No cards available for booking" });
         }
         if (quantity > card.quantity_available) {
           return res.status(400).json({
@@ -1233,11 +1439,16 @@ export const createBooking = async (req, res) => {
 
         vendor_id = card.vendor_id._id;
         if (vendor_id.toString() === userId.toString()) {
-          return res.status(403).json({ message: "You cannot book your own card template" });
+          return res
+            .status(403)
+            .json({ message: "You cannot book your own card template" });
         }
 
         price = card.price_per_card * quantity;
-        if (card.discount > 0 && (!card.discount_expiry || new Date(card.discount_expiry) > new Date())) {
+        if (
+          card.discount > 0 &&
+          (!card.discount_expiry || new Date(card.discount_expiry) > new Date())
+        ) {
           price = price * (1 - card.discount / 100);
         }
 
@@ -1261,11 +1472,15 @@ export const createBooking = async (req, res) => {
       const vendor = await User.findById(vendor_id);
       const user = await User.findById(userId);
       if (vendor) {
-        await sendOTP(vendor.phone, `A new booking has been requested by ${user.full_name}.`);
+        await sendOTP(
+          vendor.phone,
+          `A new booking has been requested by ${user.full_name}.`
+        );
       }
 
       res.status(201).json({
-        message: "Booking created successfully. Please wait for vendor confirmation.",
+        message:
+          "Booking created successfully. Please wait for vendor confirmation.",
         booking: {
           booking_id: booking._id,
           service_id: booking.service_id || booking.card_template_id,
@@ -1283,7 +1498,9 @@ export const createBooking = async (req, res) => {
     }
   } catch (error) {
     console.error("Create booking error:", error);
-    res.status(500).json({ message: error.message || "Failed to create booking" });
+    res
+      .status(500)
+      .json({ message: error.message || "Failed to create booking" });
   }
 };
 
@@ -1312,7 +1529,9 @@ export const convertEstimationToBookings = async (req, res) => {
 
       // Process services
       for (const service of estimation.services) {
-        const serviceData = await Service.findById(service.serviceId).session(session);
+        const serviceData = await Service.findById(service.serviceId).session(
+          session
+        );
         if (!serviceData) {
           console.warn(`Service ${service.serviceId} not found, skipping`);
           continue;
@@ -1321,7 +1540,9 @@ export const convertEstimationToBookings = async (req, res) => {
           throw new Error(`Service ${service.serviceId} is not published`);
         }
         if (serviceData.vendor_id.toString() === userId.toString()) {
-          throw new Error(`You cannot book your own service ${service.serviceId}`);
+          throw new Error(
+            `You cannot book your own service ${service.serviceId}`
+          );
         }
         const selectedPackage = serviceData.pricing_packages.find((pkg) =>
           pkg._id.equals(service.packageId)
@@ -1339,7 +1560,9 @@ export const convertEstimationToBookings = async (req, res) => {
           status: { $in: ["pending", "confirmed"] },
         });
         if (existingBooking) {
-          throw new Error(`You have already booked service ${service.serviceId} for the specified time`);
+          throw new Error(
+            `You have already booked service ${service.serviceId} for the specified time`
+          );
         }
 
         const booking = new Booking({
@@ -1364,10 +1587,14 @@ export const convertEstimationToBookings = async (req, res) => {
           quantity_available: { $gte: card.quantity },
         }).session(session);
         if (!cardData) {
-          throw new Error(`Card ${card.cardId} not found, not published, or insufficient quantity`);
+          throw new Error(
+            `Card ${card.cardId} not found, not published, or insufficient quantity`
+          );
         }
         if (cardData.vendor_id.toString() === userId.toString()) {
-          throw new Error(`You cannot book your own card template ${card.cardId}`);
+          throw new Error(
+            `You cannot book your own card template ${card.cardId}`
+          );
         }
 
         cardData.quantity_available -= card.quantity;
@@ -1394,17 +1621,23 @@ export const convertEstimationToBookings = async (req, res) => {
       await session.commitTransaction();
 
       // Notify vendors
-      const vendorIds = [...new Set(bookings.map((b) => b.vendor_id.toString()))];
+      const vendorIds = [
+        ...new Set(bookings.map((b) => b.vendor_id.toString())),
+      ];
       for (const vendorId of vendorIds) {
         const vendor = await User.findById(vendorId);
         if (vendor) {
-          await sendOTP(vendor.phone, `New bookings have been requested from an estimation.`);
+          await sendOTP(
+            vendor.phone,
+            `New bookings have been requested from an estimation.`
+          );
         }
       }
 
       // Return booking details
       res.status(200).json({
-        message: "Estimation converted to bookings successfully. Please wait for vendor confirmation.",
+        message:
+          "Estimation converted to bookings successfully. Please wait for vendor confirmation.",
         bookings: bookings.map((b) => ({
           booking_id: b._id,
           service_id: b.service_id || b.card_template_id,

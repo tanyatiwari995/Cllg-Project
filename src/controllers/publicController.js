@@ -176,6 +176,7 @@ export const searchServices = async (req, res) => {
 export const getServicesByCategory = async (req, res) => {
   try {
     const { category } = req.params;
+    console.log(req.params);
     const { 
       page = 1, 
       limit = 10, 
