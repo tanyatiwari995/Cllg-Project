@@ -8,7 +8,7 @@ import { NODE_ENV } from "../config/env.js"
 
 export const login = async (req, res) => {
   const { identifier, password } = req.body
-
+   console.log(req.body)
   if (!identifier || !password) return res.status(400).json({ message: "Username/phone and password are required" })
 
   try {
@@ -39,7 +39,7 @@ export const login = async (req, res) => {
 
 export const requestOtp = async (req, res) => {
   const { phone } = req.body
-
+   console.log(req.body)
   if (!phone) return res.status(400).json({ message: "Phone is required" })
 
   try {
@@ -59,8 +59,9 @@ export const requestOtp = async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    console.log(otp);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
-
+    console.log(expiresAt)
     await OTP.findOneAndUpdate(
       { phone, role: "admin" },
       {
@@ -83,7 +84,7 @@ export const requestOtp = async (req, res) => {
 
 export const verifyOtp = async (req, res) => {
   const { phone, otp } = req.body
-
+  console.log(req.body)
   if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" })
 
   try {
@@ -117,14 +118,17 @@ export const verifyOtp = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   const { newPassword } = req.body
-
+  console.log(req.body)
+     console.log(req.body)
   if (!newPassword || newPassword.length < 8) {
     return res.status(400).json({ message: "Password must be at least 8 characters" })
   }
 
   try {
     const { otpId } = req
+    console.log(req)
     const otpRecord = await OTP.findById(otpId)
+    console.log(otpRecord)
     if (!otpRecord || !otpRecord.verified || otpRecord.role !== "admin") {
       return res.status(400).json({ message: "Invalid or unverified OTP" })
     }
@@ -135,7 +139,7 @@ export const resetPassword = async (req, res) => {
     admin.password = await bcrypt.hash(newPassword, 10)
     await admin.save()
 
-    res.clearCookie("resetToken").status(200).json({ message: "Password reset successfully" })
+    res.clearCookie("reACsetToken").status(200).json({ message: "Password reset successfully" })
     await OTP.deleteOne({ _id: otpRecord._id })
   } catch (error) {
     console.error("Admin reset password error:", error)
