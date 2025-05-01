@@ -49,10 +49,10 @@ async function startServer() {
     const __dirname = path.dirname(__filename);
     const uploadsDir = path.join(__dirname, "uploads");
 
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-      console.log("Created uploads directory:", uploadsDir);
-    }
+    // if (!fs.existsSync(uploadsDir)) {
+    //   fs.mkdirSync(uploadsDir, { recursive: true });
+    //   console.log("Created uploads directory:", uploadsDir);
+    // }
 
     app.use("/users", userRoutes);
     app.use("/admins", adminRoutes);
