@@ -216,4 +216,4 @@ async function startServer() {
 }
 
 const app = startServer();
-sport default app;
+export default app;
