@@ -11,7 +11,7 @@ import { read } from "fs"
 
 export const signIn = async (req, res) => {
   const { phone } = req.body
-  console.log(req.body)
+  // console.log(req.body)
 
   if (!phone) return res.status(400).json({ message: "Phone is required" })
   if (!/^\+91[6-9][0-9]{9}$/.test(phone)) return res.status(400).json({ message: "Invalid Indian phone number" })

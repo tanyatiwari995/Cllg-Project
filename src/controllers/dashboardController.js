@@ -666,6 +666,7 @@ export const getUserEstimations = async (req, res) => {
 // User Bookings List
 export const getUserBookings = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id);
 
   try {
     const page = parseInt(req.query.page) || 1;
@@ -873,7 +874,9 @@ export const submitReview = async (req, res) => {
 // Cancel User Booking
 export const cancelUserBooking = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id);
   const { bookingId } = req.params;
+ console.log(req.params)
 
   try {
     const session = await mongoose.startSession();
@@ -955,6 +958,7 @@ export const cancelUserBooking = async (req, res) => {
 export const getServiceById = async (req, res) => {
   try {
     const { serviceId } = req.params;
+    console.log(req.params);
     const service = await Service.findById(serviceId)
       .populate("vendor_id", "username full_name vendorDetails.brand_name")
       .lean();
@@ -998,6 +1002,7 @@ export const getServiceById = async (req, res) => {
 export const getCardById = async (req, res) => {
   try {
     const { cardId } = req.params;
+    console.log(req.params);
     const card = await CardTemplate.findById(cardId)
       .populate("vendor_id", "username full_name vendorDetails.brand_name")
       .lean();
@@ -1035,6 +1040,7 @@ export const getCardById = async (req, res) => {
 export const getVendorRequestById = async (req, res) => {
   try {
     const { vendorId } = req.params;
+    console.log(req.params);
     const user = await User.findById(vendorId)
       .select("username full_name phone vendorRequest")
       .lean();
@@ -1078,6 +1084,7 @@ export const getVendorRequestById = async (req, res) => {
 // Revert Service to Pending
 export const revertServiceToPending = async (req, res) => {
   const { serviceId } = req.params;
+  console.log(req.params);
 
   try {
     const service = await Service.findById(serviceId);
@@ -1244,7 +1251,10 @@ export const createEstimation = async (req, res) => {
 // Remove an estimation or specific items
 export const removeEstimation = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id);
+
   const { estimationId, serviceId, cardId } = req.params;
+  console.log(req.params)
 
   try {
     // Validate estimation
@@ -1315,6 +1325,7 @@ export const removeEstimation = async (req, res) => {
 export const createBooking = async (req, res) => {
   console.log("createBooking called with payload:", req.body);
   const userId = req.user.id;
+  console.log(req.user.id)
   const {
     service_id,
     package_id,
@@ -1347,6 +1358,7 @@ export const createBooking = async (req, res) => {
 
     let vendor_id, price, booking;
     const session = await mongoose.startSession();
+    console.log(session);
     session.startTransaction();
 
     try {
@@ -1506,7 +1518,9 @@ export const createBooking = async (req, res) => {
 
 export const convertEstimationToBookings = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id)
   const { estimationId, date_time } = req.body;
+  console.log(req.body)
 
   try {
     // Validate estimation

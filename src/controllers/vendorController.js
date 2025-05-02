@@ -515,7 +515,7 @@ export const checkAvailability = async (req, res) => {
     const vendor = await User.findById(vendorId);
     const whatsappLink = generateWhatsAppLink(
       vendor.phone,
-      `Hi, I’d like to check your availability for ${serviceId ? "a service" : "a card"} on ${eventDate.toLocaleDateString()}.`
+      `Hi, I'd like to check your availability for ${serviceId ? "a service" : "a card"} on ${eventDate.toLocaleDateString()}.`
     );
 
     res.status(200).json({ isAvailable, whatsappLink });
