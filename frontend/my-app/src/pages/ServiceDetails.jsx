@@ -474,7 +474,7 @@ const ServiceDetails = () => {
           </Marker>
         </MapContainer>
       ) : (
-        <img src="/assets/images/map.jpg" alt="Map Placeholder" style={{ width: '100%', height: '400px' }} />
+        <img src="/assets/images/image.png" alt="Map Placeholder" style={{ width: '100%', height: '400px' }} />
       )}
     </div>
     <div className="dp-address-text">{service.address || service.city || 'Mumbai, India'}</div>

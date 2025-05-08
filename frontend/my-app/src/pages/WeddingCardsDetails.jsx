@@ -1,94 +1,101 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
-import Navbar from "./common/Navbar"
-import Footer from "./common/Footer"
-import EstimateSidebar from "./common/EstimateSidebar"
-import { fetchCardDetails, checkCardAvailability } from "../services/api"
-import { useEstimate } from "../context/EstimateContext"
-import { useAuth } from "../context/AuthContext"
-import "./details-page.css"
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import Navbar from "./common/Navbar";
+import Footer from "./common/Footer";
+import EstimateSidebar from "./common/EstimateSidebar";
+import { fetchCardDetails, checkCardAvailability } from "../services/api";
+import { useEstimate } from "../context/EstimateContext";
+import { useAuth } from "../context/AuthContext";
+import "./details-page.css";
 
 const WeddingCardsDetails = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { addToEstimate } = useEstimate()
-  const { user, isLoading } = useAuth()
-  const [card, setCard] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [activeTab, setActiveTab] = useState("Details")
-  const [quantity, setQuantity] = useState(1)
-  const [date, setDate] = useState("")
-  const [reviewsPage, setReviewsPage] = useState(1)
-  const [showBookingModal, setShowBookingModal] = useState(false)
-  const reviewsPerPage = 5
-  const today = new Date().toISOString().split("T")[0]
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToEstimate } = useEstimate();
+  const { user, isLoading } = useAuth();
+  const [card, setCard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("Details");
+  const [quantity, setQuantity] = useState(1);
+  const [date, setDate] = useState("");
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const reviewsPerPage = 5;
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const loadCard = async () => {
       try {
-        const data = await fetchCardDetails(id)
-        setCard(data)
-        document.title = `${data.name} - Card Details | EazyWed`
+        const data = await fetchCardDetails(id);
+        setCard(data);
+        document.title = `${data.name} - Card Details | EazyWed`;
       } catch (err) {
-        setError("Failed to load card details.")
-        toast.error("Failed to load card details.")
+        setError("Failed to load card details.");
+        toast.error("Failed to load card details.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    loadCard()
-  }, [id])
+    };
+    loadCard();
+  }, [id]);
 
   const handleTabClick = (tab) => {
-    setActiveTab(tab)
-    document.getElementById(`dp-section-${tab.toLowerCase()}`).scrollIntoView({ behavior: "smooth" })
-  }
+    setActiveTab(tab);
+    document
+      .getElementById(`dp-section-${tab.toLowerCase()}`)
+      .scrollIntoView({ behavior: "smooth" });
+  };
 
-  const validateDate = () => date && new Date(date) >= new Date(today)
+  const validateDate = () => date && new Date(date) >= new Date(today);
 
   const handleBook = async () => {
     if (!user) {
-      toast.error("Please sign in to book a card")
-      navigate("/signin")
-      return
+      toast.error("Please sign in to book a card");
+      navigate("/signin");
+      return;
     }
 
     if (!validateDate()) {
-      toast.error("Please select a valid delivery date.")
-      return
+      toast.error("Please select a valid delivery date.");
+      return;
     }
     try {
-      const payload = { card_template_id: id, date_time: date, quantity }
-      const response = await fetch("http://localhost:5000/dashboard/user/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      })
+      const payload = { card_template_id: id, date_time: date, quantity };
+      const response = await fetch(
+        "http://localhost:5000/dashboard/user/bookings",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
-          toast.error("Please sign in to book")
-          navigate("/signin")
+          toast.error("Please sign in to book");
+          navigate("/signin");
         } else {
-          throw new Error("Booking failed")
+          throw new Error("Booking failed");
         }
       } else {
-        const data = await response.json()
-        toast.success(`Booking created! Booking ID: ${data.booking.booking_id}`)
-        setTimeout(() => navigate("/dashboard"), 2000)
+        const data = await response.json();
+        toast.success(
+          `Booking created! Booking ID: ${data.booking.booking_id}`
+        );
+        setTimeout(() => navigate("/dashboard"), 2000);
       }
     } catch (err) {
-      console.error("Booking failed:", err)
-      toast.error(err.message || "Booking failed.")
+      console.error("Booking failed:", err);
+      toast.error(err.message || "Booking failed.");
     }
-  }
+  };
 
   const handleAddToEstimate = async () => {
     try {
@@ -98,78 +105,78 @@ const WeddingCardsDetails = () => {
         quantity,
         name: card.name,
         subtotal: card.pricePerCard * quantity,
-      }
-      await addToEstimate(item)
-    } catch (err) {
-      console.error("Add to estimate failed:", err)
-      toast.error("Failed to add to estimate.")
+      };
+      await addToEstimate(item);
+    } catch (err) {   
+      console.error("Add to estimate failed:", err);
+      toast.error("Failed to add to estimate.");
     }
-  }
+  };
 
   const handleCustomize = async () => {
     if (card.type !== "editable") {
-      toast.error("This card is not customizable")
-      return
+      toast.error("This card is not customizable");
+      return;
     }
 
     try {
-      navigate(`/public-editor/${id}`)
+      navigate(`/public-editor/${id}`);
     } catch (err) {
-      console.error("Navigation to editor failed:", err)
-      toast.error("Failed to load editor.")
+      console.error("Navigation to editor failed:", err);
+      toast.error("Failed to load editor.");
     }
-  }
+  };
 
   const handleAvailabilityCheck = async () => {
     if (!validateDate()) {
-      toast.error("Please select a valid delivery date.")
-      return
+      toast.error("Please select a valid delivery date.");
+      return;
     }
     try {
-      const payload = { date, quantity }
-      const { whatsappLink } = await checkCardAvailability(id, payload)
-      window.open(whatsappLink, "_blank")
-      toast.success("WhatsApp inquiry opened!")
+      const payload = { date, quantity };
+      const { whatsappLink } = await checkCardAvailability(id, payload);
+      window.open(whatsappLink, "_blank");
+      toast.success("WhatsApp inquiry opened!");
     } catch (err) {
-      console.error("Availability check failed:", err)
-      toast.error("Failed to check availability.")
+      console.error("Availability check failed:", err);
+      toast.error("Failed to check availability.");
     }
-  }
+  };
 
   const handleWhatsAppContact = () => {
     if (!card?.vendorPhone) {
-      toast.error("Vendor contact not available.")
-      return
+      toast.error("Vendor contact not available.");
+      return;
     }
-    const whatsappLink = `https://wa.me/${card.vendorPhone.replace("+", "")}`
-    window.open(whatsappLink, "_blank")
-  }
+    const whatsappLink = `https://wa.me/${card.vendorPhone.replace("+", "")}`;
+    window.open(whatsappLink, "_blank");
+  };
 
-  const loadMoreReviews = () => setReviewsPage((prev) => prev + 1)
+  const loadMoreReviews = () => setReviewsPage((prev) => prev + 1);
 
   const calculateRatingBars = () => {
-    if (!card?.reviews.length) return Array(5).fill(0)
-    const counts = Array(5).fill(0)
-    card.reviews.forEach((r) => counts[5 - r.stars]++)
-    return counts.map((count) => (count / card.reviews.length) * 100)
-  }
+    if (!card?.reviews.length) return Array(5).fill(0);
+    const counts = Array(5).fill(0);
+    card.reviews.forEach((r) => counts[5 - r.stars]++);
+    return counts.map((count) => (count / card.reviews.length) * 100);
+  };
 
   const getDetailIcon = (key) => {
     const icons = {
-      "Type": "fa-tag",
-      "Format": "fa-file-alt",
+      Type: "fa-tag",
+      Format: "fa-file-alt",
       "Design Time": "fa-clock",
-      "Dimensions": "fa-ruler-combined",
-    }
-    return icons[key] || "fa-info"
-  }
+      Dimensions: "fa-ruler-combined",
+    };
+    return icons[key] || "fa-info";
+  };
 
-  if (loading) return <div className="dp-loading">Loading...</div>
-  if (error) return <div className="dp-error">{error}</div>
-  if (!card) return null
+  if (loading) return <div className="dp-loading">Loading...</div>;
+  if (error) return <div className="dp-error">{error}</div>;
+  if (!card) return null;
 
-  const displayedReviews = card.reviews.slice(0, reviewsPage * reviewsPerPage)
-  const ratingBars = calculateRatingBars()
+  const displayedReviews = card.reviews.slice(0, reviewsPage * reviewsPerPage);
+  const ratingBars = calculateRatingBars();
 
   return (
     <>
@@ -177,7 +184,9 @@ const WeddingCardsDetails = () => {
       <EstimateSidebar />
       <div className="dp-container">
         <nav className="dp-breadcrumb">
-          <a href="/">Home</a> {" > "} <a href="/services/cards">Wedding Cards</a> {" > "} <span>{card.name}</span>
+          <a href="/">Home</a> {" > "}{" "}
+          <a href="/services/cards">Wedding Cards</a> {" > "}{" "}
+          <span>{card.name}</span>
         </nav>
 
         <div className="dp-nav-section">
@@ -188,8 +197,8 @@ const WeddingCardsDetails = () => {
                   href={`#dp-section-${tab.toLowerCase()}`}
                   className={activeTab === tab ? "active" : ""}
                   onClick={(e) => {
-                    e.preventDefault()
-                    handleTabClick(tab)
+                    e.preventDefault();
+                    handleTabClick(tab);
                   }}
                 >
                   {tab}
@@ -204,21 +213,28 @@ const WeddingCardsDetails = () => {
             <div className="dp-profile">
               <div className="dp-profile-img">
                 <img
-                  src={card.vendorBrandIcon || card.frontImage || "assets/images/default-profile.jpeg"}
+                  src={
+                    card.vendorBrandIcon ||
+                    card.frontImage ||
+                    "assets/images/default-profile.jpeg"
+                  }
                   alt="Profile"
                 />
               </div>
               <div className="dp-profile-info">
                 <h1>{card.name}</h1>
                 <div className="dp-rating">
-                  <i className="fas fa-star"></i> {card.avgRating} ({card.reviewCount})
+                  <i className="fas fa-star"></i> {card.avgRating} (
+                  {card.reviewCount})
                 </div>
                 <div className="dp-address">
                   <i className="fas fa-map-marker-alt"></i> {card.city}
                 </div>
               </div>
             </div>
-            {["type", "format", "designTime", "dimensions"].some((key) => card[key]) && (
+            {["type", "format", "designTime", "dimensions"].some(
+              (key) => card[key]
+            ) && (
               <div className="dp-details">
                 <h3>Details</h3>
                 <dl className="dp-details-grid">
@@ -233,11 +249,12 @@ const WeddingCardsDetails = () => {
                       (Array.isArray(value) ? value.length > 0 : true) && (
                         <React.Fragment key={key}>
                           <dt>
-                            <i className={`fas ${getDetailIcon(key)}`}></i> {key}:
+                            <i className={`fas ${getDetailIcon(key)}`}></i>{" "}
+                            {key}:
                           </dt>
                           <dd>{value}</dd>
                         </React.Fragment>
-                      ),
+                      )
                   )}
                 </dl>
               </div>
@@ -252,18 +269,29 @@ const WeddingCardsDetails = () => {
           <div className="dp-subsection-2">
             <div id="carouselExample" className="carousel slide dp-carousel">
               <div className="carousel-inner dp-carousel-inner">
-                {[card.frontImage, ...card.gallery].filter(Boolean).map((photo, idx) => (
-                  <div key={idx} className={`carousel-item dp-carousel-item ${idx === 0 ? "active" : ""}`}>
-                    <img
-                      src={photo || "/placeholder.svg"}
-                      alt={`Image ${idx + 1}`}
-                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                      data-bs-toggle="modal"
-                      data-bs-target="#imageModal"
-                      data-src={photo || "/placeholder.svg"}
-                    />
-                  </div>
-                ))}
+                {[card.frontImage, ...card.gallery]
+                  .filter(Boolean)
+                  .map((photo, idx) => (
+                    <div
+                      key={idx}
+                      className={`carousel-item dp-carousel-item ${
+                        idx === 0 ? "active" : ""
+                      }`}
+                    >
+                      <img
+                        src={photo || "/placeholder.svg"}
+                        alt={`Image ${idx + 1}`}
+                        style={{
+                          objectFit: "cover",
+                          width: "100%",
+                          height: "100%",
+                        }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#imageModal"
+                        data-src={photo || "/placeholder.svg"}
+                      />
+                    </div>
+                  ))}
               </div>
               <button
                 className="carousel-control-prev"
@@ -271,7 +299,10 @@ const WeddingCardsDetails = () => {
                 data-bs-target="#carouselExample"
                 data-bs-slide="prev"
               >
-                <span className="carousel-control-prev-icon dp-carousel-control" aria-hidden="true"></span>
+                <span
+                  className="carousel-control-prev-icon dp-carousel-control"
+                  aria-hidden="true"
+                ></span>
                 <span className="visually-hidden">Previous</span>
               </button>
               <button
@@ -280,7 +311,10 @@ const WeddingCardsDetails = () => {
                 data-bs-target="#carouselExample"
                 data-bs-slide="next"
               >
-                <span className="carousel-control-next-icon dp-carousel-control" aria-hidden="true"></span>
+                <span
+                  className="carousel-control-next-icon dp-carousel-control"
+                  aria-hidden="true"
+                ></span>
                 <span className="visually-hidden">Next</span>
               </button>
             </div>
@@ -290,7 +324,9 @@ const WeddingCardsDetails = () => {
                   <i className="fab fa-whatsapp"></i> Contact via WhatsApp
                 </button>
               </div>
-              <div className="dp-price-range">{card.pricePerCard.toLocaleString()} PKR</div>
+              <div className="dp-price-range">
+                {card.pricePerCard.toLocaleString()} PKR
+              </div>
             </div>
           </div>
         </div>
@@ -300,15 +336,24 @@ const WeddingCardsDetails = () => {
           <div className="dp-package-details">
             <div className="dp-inclusions-section">
               <h4>Pricing</h4>
-              <div className="dp-package-price">{card.pricePerCard.toLocaleString()} PKR per card</div>
+              <div className="dp-package-price">
+                {card.pricePerCard.toLocaleString()} PKR per card
+              </div>
               <div>Quantity Available: {card.quantityAvailable}</div>
               <div className="dp-quantity-selector">
-                <button onClick={() => setQuantity((prev) => Math.max(1, prev - 1))} disabled={quantity <= 1}>
+                <button
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  disabled={quantity <= 1}
+                >
                   -
                 </button>
                 <span>{quantity}</span>
                 <button
-                  onClick={() => setQuantity((prev) => Math.min(card.quantityAvailable, prev + 1))}
+                  onClick={() =>
+                    setQuantity((prev) =>
+                      Math.min(card.quantityAvailable, prev + 1)
+                    )
+                  }
                   disabled={quantity >= card.quantityAvailable}
                 >
                   +
@@ -326,10 +371,16 @@ const WeddingCardsDetails = () => {
                 Book Now
               </button>
               {card.quantityAvailable === 0 && (
-                <span style={{ color: "red", marginLeft: "10px" }}>Out of stock</span>
+                <span style={{ color: "red", marginLeft: "10px" }}>
+                  Out of stock
+                </span>
               )}
               {card.type === "editable" && (
-                <button className="dp-btn" style={{ marginLeft: "10px" }} onClick={handleCustomize}>
+                <button
+                  className="dp-btn"
+                  style={{ marginLeft: "10px" }}
+                  onClick={handleCustomize}
+                >
                   Customize
                 </button>
               )}
@@ -342,7 +393,11 @@ const WeddingCardsDetails = () => {
                 min={today}
                 onChange={(e) => setDate(e.target.value)}
               />
-              <button className="dp-btn" onClick={handleAvailabilityCheck} disabled={!date}>
+              <button
+                className="dp-btn"
+                onClick={handleAvailabilityCheck}
+                disabled={!date}
+              >
                 Check Availability
               </button>
             </div>
@@ -369,7 +424,9 @@ const WeddingCardsDetails = () => {
                       className="dp-bar-fill"
                       style={{
                         width: `${ratingBars[5 - stars]}%`,
-                        backgroundColor: card.reviews.length ? "#d7385e" : "#ccc",
+                        backgroundColor: card.reviews.length
+                          ? "#d7385e"
+                          : "#ccc",
                       }}
                     ></div>
                   </div>
@@ -382,7 +439,8 @@ const WeddingCardsDetails = () => {
               <div key={idx} className="dp-review-item">
                 <div className="dp-stars">{"★".repeat(review.stars)}</div>
                 <p>
-                  "{review.comment || "No comment"}" - {review.user} ({new Date(review.createdAt).toLocaleDateString()})
+                  "{review.comment || "No comment"}" - {review.user} (
+                  {new Date(review.createdAt).toLocaleDateString()})
                 </p>
               </div>
             ))}
@@ -401,7 +459,11 @@ const WeddingCardsDetails = () => {
             <div className="dp-modal-content">
               <div className="dp-modal-header">
                 <h5 className="dp-modal-title">Book Card</h5>
-                <button type="button" className="dp-btn-close" onClick={() => setShowBookingModal(false)}>
+                <button
+                  type="button"
+                  className="dp-btn-close"
+                  onClick={() => setShowBookingModal(false)}
+                >
                   ×
                 </button>
               </div>
@@ -418,7 +480,10 @@ const WeddingCardsDetails = () => {
                 </div>
               </div>
               <div className="dp-modal-footer">
-                <button className="dp-btn dp-btn-secondary" onClick={() => setShowBookingModal(false)}>
+                <button
+                  className="dp-btn dp-btn-secondary"
+                  onClick={() => setShowBookingModal(false)}
+                >
                   Close
                 </button>
                 <button className="dp-btn" onClick={handleBook}>
@@ -430,14 +495,25 @@ const WeddingCardsDetails = () => {
         </div>
       )}
 
-      <div className="modal fade" id="imageModal" tabIndex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="imageModal"
+        tabIndex="-1"
+        aria-labelledby="imageModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="imageModalLabel">
                 Image Preview
               </h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
             <div className="modal-body">
               <img src="/placeholder.svg" id="zoomImage" alt="Zoomed Image" />
@@ -447,7 +523,7 @@ const WeddingCardsDetails = () => {
       </div>
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default WeddingCardsDetails
+export default WeddingCardsDetails;
