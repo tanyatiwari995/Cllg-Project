@@ -156,10 +156,10 @@ const WeddingCardsDetails = () => {
 
   const getDetailIcon = (key) => {
     const icons = {
-      Type: "fa-tag",
-      Format: "fa-file-alt",
+      "Type": "fa-tag",
+      "Format": "fa-file-alt",
       "Design Time": "fa-clock",
-      Dimensions: "fa-ruler-combined",
+      "Dimensions": "fa-ruler-combined",
     }
     return icons[key] || "fa-info"
   }

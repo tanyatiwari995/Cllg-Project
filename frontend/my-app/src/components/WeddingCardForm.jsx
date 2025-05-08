@@ -399,9 +399,9 @@ const WeddingCardForm = () => {
               required
             >
               <option value="">Select City</option>
-              <option value="Lahore">Lahore</option>
-              <option value="Karachi">Karachi</option>
-              <option value="Islamabad">Islamabad</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Kanpur">Kanpur</option>
             </select>
           </div>
 

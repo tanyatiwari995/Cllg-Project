@@ -105,7 +105,7 @@ const SearchBar = ({ onSearch, trendingSearches }) => {
       </form>
       <div className="trendingSearches">
         <span className="trendingLabel">Popular Searches:</span>
-        {trendingSearches.slice(0, 5).map((search) => (
+        {trendingSearches?.slice(0, 5).map((search) => (
           <span
             key={search.id}
             className="trendingItem"

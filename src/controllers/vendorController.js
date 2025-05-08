@@ -10,18 +10,25 @@ import bcrypt from "bcrypt";
 import { generateWhatsAppLink } from "../utils/whatsapp.js";
 import mongoose from "mongoose"; // Added missing import
 
-
 export const login = async (req, res) => {
   const { identifier, password } = req.body;
+  console.log(req.body);
 
-  if (!identifier || !password) return res.status(400).json({ message: "Username/phone and password are required" });
+  if (!identifier || !password)
+    return res
+      .status(400)
+      .json({ message: "Username/phone and password are required" });
 
   try {
-    const vendor = await User.findOne({ $or: [{ username: identifier }, { phone: identifier }], role: "vendor" });
+    const vendor = await User.findOne({
+      $or: [{ username: identifier }, { phone: identifier }],
+      role: "vendor",
+    });
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
 
     const isMatch = await bcrypt.compare(password, vendor.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid credentials" });
 
     const token = await generateToken(vendor._id, "vendor");
     res
@@ -34,7 +41,12 @@ export const login = async (req, res) => {
       .status(200)
       .json({
         message: "Login successful",
-        vendor: { id: vendor._id, phone: vendor.phone, username: vendor.username, role: vendor.role },
+        vendor: {
+          id: vendor._id,
+          phone: vendor.phone,
+          username: vendor.username,
+          role: vendor.role,
+        },
       });
   } catch (error) {
     console.error("Vendor login error:", error);
@@ -44,6 +56,7 @@ export const login = async (req, res) => {
 
 export const requestOtp = async (req, res) => {
   const { phone } = req.body;
+  console.log(req.body);
 
   if (!phone) return res.status(400).json({ message: "Phone is required" });
 
@@ -54,10 +67,14 @@ export const requestOtp = async (req, res) => {
     const otpRecord = await OTP.findOne({ phone, role: "vendor" });
     const now = new Date();
     if (otpRecord && otpRecord.requestCount >= 5) {
-      const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000);
+      const cooldownEnd = new Date(
+        otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000
+      );
       if (now < cooldownEnd) {
         const waitTime = Math.ceil((cooldownEnd - now) / 60000);
-        return res.status(429).json({ message: `Too many requests. Please wait ${waitTime} minutes.` });
+        return res.status(429).json({
+          message: `Too many requests. Please wait ${waitTime} minutes.`,
+        });
       } else {
         otpRecord.requestCount = 0;
       }
@@ -75,7 +92,7 @@ export const requestOtp = async (req, res) => {
         lastRequestTime: now,
         verified: false,
       },
-      { upsert: true },
+      { upsert: true }
     );
 
     await sendOTP(phone, otp);
@@ -88,11 +105,17 @@ export const requestOtp = async (req, res) => {
 
 export const verifyOtp = async (req, res) => {
   const { phone, otp } = req.body;
+  console.log(req.body);
 
-  if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" });
+  if (!phone || !otp)
+    return res.status(400).json({ message: "Phone and OTP are required" });
 
   try {
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "vendor" });
+    const otpRecord = await OTP.findOne({
+      phone,
+      otpCode: otp,
+      role: "vendor",
+    });
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -122,25 +145,36 @@ export const verifyOtp = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   const { newPassword } = req.body;
+  console.log(req.body);
 
   if (!newPassword || newPassword.length < 8) {
-    return res.status(400).json({ message: "Password must be at least 8 characters" });
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 8 characters" });
   }
 
   try {
     const { otpId } = req;
+    console.log(req);
+
     const otpRecord = await OTP.findById(otpId);
     if (!otpRecord || !otpRecord.verified || otpRecord.role !== "vendor") {
       return res.status(400).json({ message: "Invalid or unverified OTP" });
     }
 
-    const vendor = await User.findOne({ phone: otpRecord.phone, role: "vendor" });
+    const vendor = await User.findOne({
+      phone: otpRecord.phone,
+      role: "vendor",
+    });
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
 
     vendor.password = await bcrypt.hash(newPassword, 10);
     await vendor.save();
 
-    res.clearCookie("resetToken").status(200).json({ message: "Password reset successfully" });
+    res
+      .clearCookie("resetToken")
+      .status(200)
+      .json({ message: "Password reset successfully" });
     await OTP.deleteOne({ _id: otpRecord._id });
   } catch (error) {
     console.error("Vendor reset password error:", error);
@@ -151,9 +185,13 @@ export const resetPassword = async (req, res) => {
 export const checkResetToken = async (req, res) => {
   try {
     const { otpId } = req;
+    console.log(req);
+
     const otpRecord = await OTP.findById(otpId);
     if (!otpRecord || !otpRecord.verified || otpRecord.role !== "vendor") {
-      return res.status(401).json({ message: "Invalid or unverified reset token" });
+      return res
+        .status(401)
+        .json({ message: "Invalid or unverified reset token" });
     }
     res.status(200).json({ message: "Token valid" });
   } catch (error) {
@@ -166,10 +204,13 @@ export const createService = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const serviceData = req.normalizedService;
+    console.log(req.normalizedService, req.user.id);
 
     const newService = new Service({ ...serviceData, vendor_id: vendorId });
     await newService.save();
-    res.status(201).json({ message: "Service created successfully", service: newService });
+    res
+      .status(201)
+      .json({ message: "Service created successfully", service: newService });
   } catch (error) {
     console.error("Create service error:", error);
     res.status(500).json({ message: "Server error" });
@@ -181,6 +222,7 @@ export const updateService = async (req, res) => {
     const vendorId = req.user.id;
     const { serviceId } = req.params;
     const updateData = req.normalizedService;
+    console.log(req.user.id, req.params, req.normalizedService);
 
     const service = await Service.findOneAndUpdate(
       { _id: serviceId, vendor_id: vendorId },
@@ -200,8 +242,12 @@ export const deleteService = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { serviceId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const service = await Service.findOneAndDelete({ _id: serviceId, vendor_id: vendorId });
+    const service = await Service.findOneAndDelete({
+      _id: serviceId,
+      vendor_id: vendorId,
+    });
     if (!service) return res.status(404).json({ message: "Service not found" });
 
     res.status(200).json({ message: "Service deleted successfully" });
@@ -215,8 +261,12 @@ export const getVendorService = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { serviceId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const service = await Service.findOne({ _id: serviceId, vendor_id: vendorId });
+    const service = await Service.findOne({
+      _id: serviceId,
+      vendor_id: vendorId,
+    });
     if (!service) return res.status(404).json({ message: "Service not found" });
 
     res.status(200).json(service);
@@ -230,10 +280,13 @@ export const createCardTemplate = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const cardData = req.normalizedCard;
+    console.log(req.user.id, req.normalizedCard);
 
     const newCard = new CardTemplate({ ...cardData, vendor_id: vendorId });
     await newCard.save();
-    res.status(201).json({ message: "Card template created successfully", card: newCard });
+    res
+      .status(201)
+      .json({ message: "Card template created successfully", card: newCard });
   } catch (error) {
     console.error("Create card template error:", error);
     res.status(500).json({ message: "Server error" });
@@ -245,15 +298,19 @@ export const updateCardTemplate = async (req, res) => {
     const vendorId = req.user.id;
     const { cardId } = req.params;
     const updateData = req.normalizedCard;
+    console.log(req.user.id, req.params, req.normalizedCard);
 
     const card = await CardTemplate.findOneAndUpdate(
       { _id: cardId, vendor_id: vendorId },
       { ...updateData, status: "pending" },
       { new: true }
     );
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
-    res.status(200).json({ message: "Card template updated successfully", card });
+    res
+      .status(200)
+      .json({ message: "Card template updated successfully", card });
   } catch (error) {
     console.error("Update card template error:", error);
     res.status(500).json({ message: "Server error" });
@@ -264,9 +321,14 @@ export const deleteCardTemplate = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { cardId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const card = await CardTemplate.findOneAndDelete({ _id: cardId, vendor_id: vendorId });
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    const card = await CardTemplate.findOneAndDelete({
+      _id: cardId,
+      vendor_id: vendorId,
+    });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     res.status(200).json({ message: "Card template deleted successfully" });
   } catch (error) {
@@ -279,9 +341,14 @@ export const getVendorCardTemplate = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { cardId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const card = await CardTemplate.findOne({ _id: cardId, vendor_id: vendorId });
-    if (!card) return res.status(404).json({ message: "Card template not found" });
+    const card = await CardTemplate.findOne({
+      _id: cardId,
+      vendor_id: vendorId,
+    });
+    if (!card)
+      return res.status(404).json({ message: "Card template not found" });
 
     res.status(200).json(card);
   } catch (error) {
@@ -294,8 +361,12 @@ export const getBookingDetails = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { bookingId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const booking = await Booking.findOne({ _id: bookingId, vendor_id: vendorId })
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      vendor_id: vendorId,
+    })
       .populate("user_id", "username full_name phone")
       .populate("service_id", "name")
       .populate("card_template_id");
@@ -312,6 +383,7 @@ export const updateBookingStatus = async (req, res) => {
   const vendorId = req.user.id;
   const { bookingId } = req.params;
   const { status } = req.body;
+  console.log(req.user.id, req.params, req.body);
 
   try {
     if (!["pending", "confirmed", "completed", "canceled"].includes(status)) {
@@ -322,11 +394,16 @@ export const updateBookingStatus = async (req, res) => {
     session.startTransaction();
 
     try {
-      const booking = await Booking.findOne({ _id: bookingId, vendor_id: vendorId }).session(session);
+      const booking = await Booking.findOne({
+        _id: bookingId,
+        vendor_id: vendorId,
+      }).session(session);
       if (!booking) {
         await session.abortTransaction();
         session.endSession();
-        return res.status(404).json({ message: "Booking not found or you are not authorized" });
+        return res
+          .status(404)
+          .json({ message: "Booking not found or you are not authorized" });
       }
 
       const validTransitions = {
@@ -346,12 +423,17 @@ export const updateBookingStatus = async (req, res) => {
       // Restore resources if canceling
       if (status === "canceled") {
         if (booking.service_id) {
-          const service = await Service.findById(booking.service_id).session(session);
+          const service = await Service.findById(booking.service_id).session(
+            session
+          );
           if (service) {
             if (service.booking_type === "quantity-based") {
               service.quantity_available += booking.quantity || 1;
               await service.save({ session });
-            } else if (service.booking_type === "event-based" && booking.date_time) {
+            } else if (
+              service.booking_type === "event-based" &&
+              booking.date_time
+            ) {
               const slot = service.availability_slots.find(
                 (s) =>
                   new Date(s.date).toISOString().split("T")[0] ===
@@ -366,7 +448,9 @@ export const updateBookingStatus = async (req, res) => {
             }
           }
         } else if (booking.card_template_id) {
-          const card = await CardTemplate.findById(booking.card_template_id).session(session);
+          const card = await CardTemplate.findById(
+            booking.card_template_id
+          ).session(session);
           if (card) {
             card.quantity_available += booking.quantity || 1;
             await card.save({ session });
@@ -430,13 +514,14 @@ export const updateBookingStatus = async (req, res) => {
 export const getVendorBookings = async (req, res) => {
   try {
     const vendorId = req.user.id;
-    
+    console.log(req.user.id);
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
-    
+
     const totalBookings = await Booking.countDocuments({ vendor_id: vendorId });
-    
+
     const bookings = await Booking.find({ vendor_id: vendorId })
       .populate("user_id", "full_name phone")
       .populate("service_id", "name")
@@ -444,11 +529,17 @@ export const getVendorBookings = async (req, res) => {
       .sort({ date_time: -1 })
       .skip(skip)
       .limit(limit);
-    
+
     const formattedBookings = bookings.map((booking) => ({
       booking_id: booking._id,
       service_id: booking.service_id,
-      service_name: booking.service_id?.name || booking.card_template_id?.name || `${booking.card_template_id?.type?.charAt(0).toUpperCase() + (booking.card_template_id?.type?.slice(1) || '')} Card Template`,
+      service_name:
+        booking.service_id?.name ||
+        booking.card_template_id?.name ||
+        `${
+          booking.card_template_id?.type?.charAt(0).toUpperCase() +
+          (booking.card_template_id?.type?.slice(1) || "")
+        } Card Template`,
       user_id: booking.user_id._id,
       user_name: booking.user_id.full_name,
       user_phone: booking.user_id.phone,
@@ -456,16 +547,16 @@ export const getVendorBookings = async (req, res) => {
       status: booking.status,
       price: booking.price,
     }));
-    
+
     const totalPages = Math.ceil(totalBookings / limit);
-    
+
     res.status(200).json({
       data: formattedBookings,
       pagination: {
         total: totalBookings,
         page,
-        pages: totalPages
-      }
+        pages: totalPages,
+      },
     });
   } catch (error) {
     console.error("Error fetching vendor bookings:", error);
@@ -477,11 +568,12 @@ export const getBookingUserInfo = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { bookingId } = req.params;
+    console.log(req.user.id, req.params);
 
-    const booking = await Booking.findOne({ _id: bookingId, vendor_id: vendorId }).populate(
-      "user_id",
-      "username full_name phone"
-    );
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      vendor_id: vendorId,
+    }).populate("user_id", "username full_name phone");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     res.status(200).json(booking.user_id);
@@ -495,9 +587,12 @@ export const checkAvailability = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { serviceId, cardId, date } = req.body;
+    console.log(req.user.id, req.body);
 
     if (!serviceId && !cardId) {
-      return res.status(400).json({ message: "Service ID or Card ID is required" });
+      return res
+        .status(400)
+        .json({ message: "Service ID or Card ID is required" });
     }
     if (!date) return res.status(400).json({ message: "Date is required" });
 
@@ -515,7 +610,9 @@ export const checkAvailability = async (req, res) => {
     const vendor = await User.findById(vendorId);
     const whatsappLink = generateWhatsAppLink(
       vendor.phone,
-      `Hi, I'd like to check your availability for ${serviceId ? "a service" : "a card"} on ${eventDate.toLocaleDateString()}.`
+      `Hi, I'd like to check your availability for ${
+        serviceId ? "a service" : "a card"
+      } on ${eventDate.toLocaleDateString()}.`
     );
 
     res.status(200).json({ isAvailable, whatsappLink });
@@ -528,18 +625,39 @@ export const checkAvailability = async (req, res) => {
 export const getVendorDashboardStats = async (req, res) => {
   try {
     const vendorId = req.user.id;
+    console.log(req.user.id);
 
     const totalServices = await Service.countDocuments({ vendor_id: vendorId });
-    const publishedServices = await Service.countDocuments({ vendor_id: vendorId, status: "published" });
-    const pendingServices = await Service.countDocuments({ vendor_id: vendorId, status: "pending" });
+    const publishedServices = await Service.countDocuments({
+      vendor_id: vendorId,
+      status: "published",
+    });
+    const pendingServices = await Service.countDocuments({
+      vendor_id: vendorId,
+      status: "pending",
+    });
 
-    const totalCards = await CardTemplate.countDocuments({ vendor_id: vendorId });
-    const publishedCards = await CardTemplate.countDocuments({ vendor_id: vendorId, status: "published" });
-    const pendingCards = await CardTemplate.countDocuments({ vendor_id: vendorId, status: "pending" });
+    const totalCards = await CardTemplate.countDocuments({
+      vendor_id: vendorId,
+    });
+    const publishedCards = await CardTemplate.countDocuments({
+      vendor_id: vendorId,
+      status: "published",
+    });
+    const pendingCards = await CardTemplate.countDocuments({
+      vendor_id: vendorId,
+      status: "pending",
+    });
 
     const totalBookings = await Booking.countDocuments({ vendor_id: vendorId });
-    const confirmedBookings = await Booking.countDocuments({ vendor_id: vendorId, status: "confirmed" });
-    const completedBookings = await Booking.countDocuments({ vendor_id: vendorId, status: "completed" });
+    const confirmedBookings = await Booking.countDocuments({
+      vendor_id: vendorId,
+      status: "confirmed",
+    });
+    const completedBookings = await Booking.countDocuments({
+      vendor_id: vendorId,
+      status: "completed",
+    });
 
     const now = new Date();
     const upcomingBookings = await Booking.countDocuments({

@@ -9,6 +9,7 @@ import { NODE_ENV } from "../config/env.js";
 export const login = async (req, res) => {
   const { identifier, password } = req.body;
   console.log(req.body);
+
   if (!identifier || !password)
     return res
       .status(400)
@@ -51,6 +52,7 @@ export const login = async (req, res) => {
 export const requestOtp = async (req, res) => {
   const { phone } = req.body;
   console.log(req.body);
+
   if (!phone) return res.status(400).json({ message: "Phone is required" });
 
   try {
@@ -75,8 +77,10 @@ export const requestOtp = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     console.log(otp);
+
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
     console.log(expiresAt);
+
     await OTP.findOneAndUpdate(
       { phone, role: "admin" },
       {
@@ -146,8 +150,10 @@ export const resetPassword = async (req, res) => {
   try {
     const { otpId } = req;
     console.log(req);
+
     const otpRecord = await OTP.findById(otpId);
     console.log(otpRecord);
+    
     if (!otpRecord || !otpRecord.verified || otpRecord.role !== "admin") {
       return res.status(400).json({ message: "Invalid or unverified OTP" });
     }
@@ -172,6 +178,8 @@ export const resetPassword = async (req, res) => {
 export const checkResetToken = async (req, res) => {
   try {
     const { otpId } = req;
+    console.log(req);
+
     const otpRecord = await OTP.findById(otpId);
     if (!otpRecord || !otpRecord.verified || otpRecord.role !== "admin") {
       return res
@@ -187,6 +195,7 @@ export const checkResetToken = async (req, res) => {
 
 export const approveVendor = async (req, res) => {
   const { userId } = req.body;
+  console.log(req.body);
 
   try {
     const user = await User.findById(userId);
@@ -215,6 +224,7 @@ export const approveVendor = async (req, res) => {
 
 export const rejectVendor = async (req, res) => {
   const { userId } = req.body;
+  console.log(req.body);
 
   try {
     const user = await User.findById(userId);

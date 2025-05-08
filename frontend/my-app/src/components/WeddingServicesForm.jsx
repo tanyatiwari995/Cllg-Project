@@ -627,9 +627,9 @@ const WeddingServicesForm = () => {
               required
             >
               <option value="">Select City</option>
-              <option value="Lahore">Lahore</option>
-              <option value="Karachi">Karachi</option>
-              <option value="Islamabad">Islamabad</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Kanpur">Kanpur</option>
+              <option value="Mumbai">Mumbai</option>
             </select>
           </div>
 
@@ -691,7 +691,7 @@ const WeddingServicesForm = () => {
               value={formData.address}
               onChange={handleChange}
               required
-              placeholder="e.g., 123 Main St, Lahore"
+              placeholder="e.g., 123  Mumbai"
             />
           </div>
 

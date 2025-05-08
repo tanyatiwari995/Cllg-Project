@@ -176,6 +176,7 @@ export const getAdminBookings = async (req, res) => {
     }));
 
     const totalPages = Math.ceil(totalBookings / limit);
+    console.log(totalPages);
 
     res.status(200).json({
       data: formattedBookings,
@@ -256,7 +257,8 @@ export const getAdminUsers = async (req, res) => {
     }));
 
     const totalPages = Math.ceil(totalUsers / limit);
-
+    console.log(totalPages);
+    
     res.status(200).json({
       data: formattedUsers,
       pagination: { total: totalUsers, page, pages: totalPages },
@@ -337,6 +339,7 @@ export const approveService = async (req, res) => {
 export const rejectService = async (req, res) => {
   const { serviceId } = req.params;
   console.log(req.params);
+
   try {
     const service = await Service.findById(serviceId);
     if (!service) return res.status(404).json({ message: "Service not found" });
@@ -503,6 +506,7 @@ export const cancelBooking = async (req, res) => {
 export const deleteReview = async (req, res) => {
   const { reviewId } = req.params;
   console.log(req.params);
+
   try {
     const review = await Review.findById(reviewId);
     if (!review) return res.status(404).json({ message: "Review not found" });
@@ -549,6 +553,7 @@ export const toggleUserBlock = async (req, res) => {
 export const getUserDashboardStats = async (req, res) => {
   const userId = req.user.id;
   console.log(req.user.id);
+
   try {
     const estimations = await Estimation.find({ userId }).countDocuments();
     const totalEstimationCost = await Estimation.aggregate([
@@ -601,6 +606,7 @@ export const getUserDashboardStats = async (req, res) => {
 // User Estimations List
 export const getUserEstimations = async (req, res) => {
   const userId = req.user.id;
+  console.log(req.user.id);
 
   try {
     const page = parseInt(req.query.page) || 1;
@@ -778,8 +784,7 @@ export const getUserReviews = async (req, res) => {
 export const submitReview = async (req, res) => {
   const userId = req.user.id;
   const { bookingId, rating, comment } = req.body;
- console.log(req.body);
-
+  console.log(req.body);
 
   try {
     if (!bookingId || !rating) {
@@ -876,7 +881,7 @@ export const cancelUserBooking = async (req, res) => {
   const userId = req.user.id;
   console.log(req.user.id);
   const { bookingId } = req.params;
- console.log(req.params)
+  console.log(req.params);
 
   try {
     const session = await mongoose.startSession();
@@ -1254,7 +1259,7 @@ export const removeEstimation = async (req, res) => {
   console.log(req.user.id);
 
   const { estimationId, serviceId, cardId } = req.params;
-  console.log(req.params)
+  console.log(req.params);
 
   try {
     // Validate estimation
@@ -1325,7 +1330,7 @@ export const removeEstimation = async (req, res) => {
 export const createBooking = async (req, res) => {
   console.log("createBooking called with payload:", req.body);
   const userId = req.user.id;
-  console.log(req.user.id)
+  console.log(req.user.id);
   const {
     service_id,
     package_id,
@@ -1518,9 +1523,9 @@ export const createBooking = async (req, res) => {
 
 export const convertEstimationToBookings = async (req, res) => {
   const userId = req.user.id;
-  console.log(req.user.id)
+  console.log(req.user.id);
   const { estimationId, date_time } = req.body;
-  console.log(req.body)
+  console.log(req.body);
 
   try {
     // Validate estimation

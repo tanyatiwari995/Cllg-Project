@@ -177,6 +177,7 @@ export const getServicesByCategory = async (req, res) => {
   try {
     const { category } = req.params;
     console.log(req.params);
+
     const { 
       page = 1, 
       limit = 10, 
@@ -251,7 +252,8 @@ export const getDiscountedServicesByCategory = async (req, res) => {
   try {
     const { category } = req.params;
     const { page = 1, limit = 10 } = req.query;
-
+     console.log(req.params,req.query);
+     
     if (!category) {
       return res.status(400).json({ message: "Category parameter is required" });
     }
@@ -283,7 +285,8 @@ export const getDiscountedServicesByCategory = async (req, res) => {
 export const getServiceDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
+     console.log(req.params);
+     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid service ID" });
     }
@@ -351,6 +354,8 @@ export const checkServiceAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const { date, packageId, quantity = 1, startDate, endDate } = req.body;
+     console.log(req.params,req.body);
+     
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid service ID" });
@@ -459,7 +464,8 @@ export const getCardsByType = async (req, res) => {
   try {
     const { type } = req.params;
     const { page = 1, limit = 10 } = req.query;
-
+    console.log(req.params,req.query);
+    
     const skip = (page - 1) * parseInt(limit);
     const query = { status: "published" };
 
@@ -491,7 +497,8 @@ export const getCardsByType = async (req, res) => {
 export const getCardDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(req.params);
+    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid card ID" });
     }
@@ -556,6 +563,8 @@ export const getCardDetails = async (req, res) => {
 export const editCardTemplate = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(req.params);
+    
     console.log(`Fetching card template for editing: ID=${id}, User=${req.user?._id}`);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -617,7 +626,8 @@ export const editCardTemplate = async (req, res) => {
 export const submitContactInquiry = async (req, res) => {
   try {
     const { name, phone, message } = req.body;
-
+    console.log(req.body);
+    
     // Validate fields
     if (!name || !phone || !message) {
       return res.status(400).json({ message: "All fields are required" });
@@ -707,7 +717,8 @@ export const getRecommendations = async (req, res) => {
 export const chatbotQuery = async (req, res) => {
   try {
     const { query } = req.body;
-
+    console.log(req.body);
+    
     if (!query) {
       return res.status(400).json({ message: "Query is required" });
     }
@@ -724,7 +735,8 @@ export const checkCardAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const { date, quantity = 1 } = req.body;
-
+     console.log(req.params,req.body);
+     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid card ID" });
     }

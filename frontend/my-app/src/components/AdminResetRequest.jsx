@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext"
 import { Modal, Button } from "react-bootstrap"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import pkFlag from "../assets/images/pk-flag.png"
+import indiaFlag from "../assets/images/in-flag.png";
 import onboardingImg from "../assets/images/onboarding.png"
 // import "../styles/admin-auth.css"
 
@@ -44,7 +44,7 @@ const AdminResetRequest = () => {
           <form id="admin-reset-request-form" onSubmit={handlePhoneSubmit}>
             <h5>Reset Password</h5>
             <div className="phone-area">
-              <img src={pkFlag || "/placeholder.svg"} alt="Pakistan Flag" />
+              <img src={ indiaFlag  || "/placeholder.svg"} alt="Indian Flag" />
               <input
                 type="text"
                 name="phone"

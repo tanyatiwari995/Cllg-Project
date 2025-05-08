@@ -13,7 +13,7 @@ import './details-page.css';
 import createAPI from '../utils/api';
 
 const categoryFields = {
-  Photographers: ['expertise', 'staff', 'cities_covered', 'cancellation_policy'],
+  "Photographers": ['expertise', 'staff', 'cities_covered', 'cancellation_policy'],
   "Wedding Venues": ['venue_type', 'amenities', 'parking_space', 'catering_type', 'wheelchair_accessible', 'staff', 'cancellation_policy'],
   "Bridal Makeup": ['services_for', 'location_type', 'staff', 'home_service', 'expertise', 'cities_covered', 'cancellation_policy'],
   "Henna Artists": ['services_for', 'mehndi_type', 'expertise', 'has_team', 'sells_mehndi', 'cities_covered', 'cancellation_policy'],

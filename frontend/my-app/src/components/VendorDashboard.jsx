@@ -751,7 +751,7 @@ const VendorDashboard = () => {
                             {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                           </span>
                         </td>
-                        <td>PKR {booking.price?.toLocaleString() || "N/A"}</td>
+                        <td>INR{booking.price?.toLocaleString() || "N/A"}</td>
                         <td>
                           <div className="action-icons">
                             <Button

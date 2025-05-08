@@ -62,7 +62,7 @@ const AdminDashboard = () => {
     try {
       // Always fetch stats for the dashboard overview
       const statsRes = await api.get("/dashboard/admin/stats")
-      let newData = { ...dashboardData, stats: statsRes.data }
+      let newData = { ...dashboardData, stats: statsRes.data }  
       let newPagination = { ...pagination }
 
       // Fetch tab-specific data

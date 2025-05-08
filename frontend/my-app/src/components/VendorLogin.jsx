@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -7,12 +6,12 @@ import { useAuth } from "../context/AuthContext"
 import { Button } from "react-bootstrap"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import pkFlag from "../assets/images/pk-flag.png"
+import indiaFlag from "../assets/images/in-flag.png";
 import onboardingImg from "../assets/images/onboarding.png"
 // import "../styles/admin-auth.css"
 
 const VendorLogin = () => {
-  const [identifier, setIdentifier] = useState("+92")
+  const [identifier, setIdentifier] = useState("+91")
   const [password, setPassword] = useState("")
   const { vendorLogin, loading } = useAuth()
   const navigate = useNavigate()
@@ -37,7 +36,7 @@ const VendorLogin = () => {
             <h5>Vendor Login</h5>
             <label htmlFor="identifier">Username or Phone *</label>
             <div className="phone-area">
-              <img src={pkFlag || "/placeholder.svg"} alt="Pakistan Flag" />
+              <img src={indiaFlag || "/placeholder.svg"} alt="India Flag" />
               <input
                 type="text"
                 name="identifier"

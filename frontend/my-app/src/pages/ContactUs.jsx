@@ -5,7 +5,7 @@ import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import inFlag from "../assets/images/in-flag.png"; // Indian flag
+import indianFlag from "../assets/images/in-flag.png"; 
 import onboardingImg from "../assets/images/contact-us.png";
 import axios from "axios";
 
@@ -84,7 +84,7 @@ const ContactUs = () => {
 
             <label htmlFor="phone">Phone Number *</label>
             <div className="phone-area">
-              <img src={inFlag || "/placeholder.svg"} alt="Indian Flag" />
+              <img src={indianFlag || "/placeholder.svg"} alt="Indian Flag" />
               <input
                 type="text"
                 name="phone"

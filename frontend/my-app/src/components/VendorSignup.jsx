@@ -7,18 +7,18 @@ import { Button, Modal } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import onboardingImg from "../assets/images/onboarding.png";
-import pkFlag from "../assets/images/pk-flag.png";
+import indiaFlag from "../assets/images/in-flag.png";
 import "../styles/vendor-auth.css";
 
 const VendorSignup = () => {
   const [formData, setFormData] = useState({
-    phone: "+92",
+    phone: "+91",
     password: "",
     retypePassword: "",
     vendorRequest: {
       full_name: "",
       email: "",
-      whatsapp_number: "+92",
+      whatsapp_number: "+91",
       instagram_link: "",
       facebook_link: "",
       booking_email: "",

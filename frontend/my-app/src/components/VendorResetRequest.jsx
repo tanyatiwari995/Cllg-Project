@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext"
 import { Modal, Button } from "react-bootstrap"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import pkFlag from "../assets/images/pk-flag.png"
+import indiaFlag from "../assets/images/in-flag.png";
 import onboardingImg from "../assets/images/onboarding.png"
 // import "../styles/admin-auth.css"
 

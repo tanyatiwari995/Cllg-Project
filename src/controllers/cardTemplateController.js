@@ -6,6 +6,7 @@ export const createCardTemplate = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const cardData = req.normalizedBody;
+    console.log(req.user.id, req.normalizedBody);
 
     if (
       !cardData.type ||
@@ -21,11 +22,9 @@ export const createCardTemplate = async (req, res) => {
 
     if (cardData.type === "static" || cardData.type === "non-editable") {
       if (!cardData.front_image) {
-        return res
-          .status(400)
-          .json({
-            message: "Front image is required for static/non-editable cards",
-          });
+        return res.status(400).json({
+          message: "Front image is required for static/non-editable cards",
+        });
       }
 
       try {
@@ -41,12 +40,10 @@ export const createCardTemplate = async (req, res) => {
 
     if (cardData.type === "editable" || cardData.type === "simple") {
       if (!cardData.settings && !cardData.front_image) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Either settings or front image is required for editable cards",
-          });
+        return res.status(400).json({
+          message:
+            "Either settings or front image is required for editable cards",
+        });
       }
 
       if (cardData.front_image) {
@@ -82,6 +79,7 @@ export const getCardTemplateById = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const cardId = req.params.cardId;
+    console.log(req.params.cardId, req.user.id);
 
     const card = await CardTemplate.findOne({
       _id: cardId,
@@ -103,6 +101,7 @@ export const updateCardTemplate = async (req, res) => {
     const vendorId = req.user.id;
     const cardId = req.params.cardId;
     const updateData = req.normalizedBody;
+    console.log(req.user.id, req.params.cardId, req.normalizedBody);
 
     console.log(
       `Updating card ${cardId} with fields: ${Object.keys(updateData).join(
@@ -216,6 +215,7 @@ export const deleteCardTemplate = async (req, res) => {
   try {
     const vendorId = req.user.id;
     const cardId = req.params.cardId;
+    console.log(req.user.id, req.params.cardId);
 
     const card = await CardTemplate.findOne({
       _id: cardId,
@@ -227,11 +227,9 @@ export const deleteCardTemplate = async (req, res) => {
 
     const bookings = await Booking.countDocuments({ card_template_id: cardId });
     if (bookings > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Cannot delete card template with existing bookings",
-        });
+      return res.status(400).json({
+        message: "Cannot delete card template with existing bookings",
+      });
     }
 
     await CardTemplate.findByIdAndDelete(cardId);
