@@ -16,7 +16,7 @@ const Chatbot = () => {
     } else {
       const welcomeMessage = {
         sender: 'bot',
-        text: 'Welcome to wedding  Chat! How can I assist you with your wedding today?',
+        text: 'Welcome to EazyWed Chat! How can I assist you with your wedding today?',
         timestamp: new Date().toISOString(),
       };
       setMessages([welcomeMessage]);

@@ -44,7 +44,7 @@ const EstimateSidebar = () => {
           <p>No items in estimate</p>
         )}
       </div>
-      <p className="estimate-total">Total: <span>PKR {totalCost.toLocaleString()}</span></p>
+      <p className="estimate-total">Total: <span>INR {totalCost.toLocaleString()}</span></p>
       {estimateItems.length > 0 && (
         <>
           <button
