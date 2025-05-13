@@ -19,9 +19,11 @@ import Booking from "./models/Booking.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import  paymentRoutes  from "./routes/payment.js";
 
 dotenv.config();
-
+  
+// const PORT = PORT.process.env;
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000,
@@ -52,6 +54,7 @@ async function startServer() {
       console.log("Created uploads directory:", uploadsDir);
     }
 
+    app.use('/api/payments', paymentRoutes);
     app.use("/users", userRoutes);
     app.use("/admins", adminRoutes);
     app.use("/auth", authRoutes);

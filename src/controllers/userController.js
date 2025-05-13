@@ -15,6 +15,7 @@ export const signIn = async (req, res) => {
 
   if (!phone) return res.status(400).json({ message: "Phone is required" });
   if (!/^\+91[6-9][0-9]{9}$/.test(phone))
+
     return res.status(400).json({ message: "Invalid Indian phone number" });
 
   try {
@@ -118,6 +119,7 @@ export const verifySignInOtp = async (req, res) => {
 export const signUp = async (req, res) => {
   const { full_name, phone } = req.body;
   console.log(req.body);
+console.log(signUp);
 
   if (!full_name || !phone)
     return res
